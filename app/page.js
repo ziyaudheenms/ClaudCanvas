@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "../components/ui/sidebar";
 import {
   IconArrowLeft,
@@ -8,12 +8,19 @@ import {
   IconVideo,
   IconSlideshow,
 } from "@tabler/icons-react";
+
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { Card } from "@/elements/Card";
 import { Banner } from "@/elements/Banner";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 
 export default function Home() {
+  const { user, isLoaded } = useUser();
+  const [userData, setUserData] = useState(null);
+
   const links = [
     {
       label: "Dashboard",
@@ -46,7 +53,51 @@ export default function Home() {
   ];
   const [open, setOpen] = useState(false);
   const [LoggedIn, setLoggedIn] = useState(false);
-  
+
+  //  const router = useRouter();
+  useEffect(() => {
+    const syncUser = async () => {
+      if (!user) return;
+
+      await fetch("https://claudcanvas-backend.onrender.com/api/v1/auth/create/user/sync-user/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: user.emailAddresses[0].emailAddress,
+          username: user.username || user.id,
+        }),
+      });
+    };
+    if (!isLoaded || !user) return;
+    syncUser();
+    const verify = async () => {
+      try {
+        const response = await axios.post(
+          "https://claudcanvas-backend.onrender.com/api/v1/media/Process/verify/",
+          {
+            username: user.username || user.id, // fallback if username is null
+          }
+        );
+
+        if (response.data.status_code === 5000) {
+          console.log(response);
+
+          console.log(
+            "Final verification passed" + response.data.message.username
+          );
+          setUserData(response.data.message.username);
+        } else {
+          console.log("Final verification failed", response);
+        }
+      } catch (err) {
+        console.error("Verification error:", err);
+      }
+    };
+
+    verify();
+  }, [isLoaded, user]);
   return (
     <div
       className={cn(
@@ -68,13 +119,17 @@ export default function Home() {
             </div>
           </div>
           <div>
+            {/* {
+          console.log(user)
+
+          } */}
             <SidebarLink
               link={{
-                label: "Manu Arora",
+                label: user?.username,
                 href: "/Profile",
                 icon: (
                   <img
-                    src="https://assets.aceternity.com/manu.png"
+                    src={user?.imageUrl}
                     className="h-10 w-10 shrink-0 rounded-full"
                     width={50}
                     height={50}
@@ -97,14 +152,7 @@ export const Logo = () => {
       href="#"
       className="relative z-20 flex items-center space-x-2 py-1 text-sm font-normal text-black"
     >
-      <div className="h-5 w-6 shrink-0 rounded-tl-lg rounded-tr-sm rounded-br-lg rounded-bl-sm  dark:bg-white bg-gradient-to-r from-[#FF0080] to-[#FF8C00]" />
-      <motion.span
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="font-bold whitespace-pre  dark:text-white text-xl  bg-gradient-to-r from-[#FF0080] to-[#FF8C00] bg-clip-text text-transparent"
-      >
-        ClaudCanvas
-      </motion.span>
+      
     </a>
   );
 };
@@ -146,12 +194,13 @@ const Dashboard = () => {
       </div>
     </div>
   );
-
-
 };
 const ImageCard = ({ imageUrl, title, size, date }) => {
   return (
-    <div className="h-80 w-64 lg:w-52 md:w-80 rounded-md shadow-xl bg-cover bg-center flex flex-col justify-end p-4" style={{ backgroundImage: `url(${imageUrl})` }}>
+    <div
+      className="h-80 w-64 lg:w-52 md:w-80 rounded-md shadow-xl bg-cover bg-center flex flex-col justify-end p-4"
+      style={{ backgroundImage: `url(${imageUrl})` }}
+    >
       <div className="text-black font-medium text-[15px] relative z-10 bg-white p-2 rounded-md inline-block">
         <div className="font-bold">{title}</div>
         <div className="flex flex-row justify-between text-xs mt-1">
