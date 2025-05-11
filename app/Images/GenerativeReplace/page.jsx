@@ -1,6 +1,10 @@
 "use client";
 import React, { useState } from "react";
-import { Sidebar, SidebarBody, SidebarLink } from "../../../components/ui/sidebar";
+import {
+  Sidebar,
+  SidebarBody,
+  SidebarLink,
+} from "../../../components/ui/sidebar";
 import {
   IconArrowLeft,
   IconBrandTabler,
@@ -13,8 +17,10 @@ import { cn } from "@/lib/utils";
 import { Card } from "@/elements/Card";
 import { Banner } from "@/elements/Banner";
 import { FileUpload } from "@/elements/FileUpload";
-
+import axios from "axios";
+import { useUser } from "@clerk/nextjs";
 export default function Home() {
+  const {user , isLoaded} = useUser()
   const [clickBtn, setClickBtn] = useState(false);
   const links = [
     {
@@ -48,7 +54,7 @@ export default function Home() {
   ];
   const [open, setOpen] = useState(false);
   const [LoggedIn, setLoggedIn] = useState(false);
-  
+
   return (
     <div
       className={cn(
@@ -72,8 +78,8 @@ export default function Home() {
           <div>
             <SidebarLink
               link={{
-                label: "Manu Arora",
-                href: "#",
+                label: user?.username,
+                href: user?.imageUrl,
                 icon: (
                   <img
                     src="https://assets.aceternity.com/manu.png"
@@ -124,122 +130,210 @@ export const LogoIcon = () => {
 // Dummy dashboard component with content
 const Dashboard = () => {
   const [clickBtn, setClickBtn] = useState(false);
-  return (
-  <div className="flex flex-1 overflow-y-scroll">
-    <div className="flex h-full w-full flex-1 flex-col gap-4 rounded-tl-2xl border border-neutral-200 bg-gradient-to-br p-6  dark:from-neutral-800 dark:to-neutral-900 dark:border-neutral-700">
-      <h1 className="text-center text-3xl font-extrabold text-gray-800 dark:text-white">
+  const [title, setTitle] = useState("");
+  const [itemToReplace, setItemToReplace] = useState("");
+  const [replacementItem, setReplacementItem] = useState("");
+  const [image, setImage] = useState(null);
+  const [Resultimage, setResultimage] = useState(null);
+  const { user, isLoaded } = useUser();
+
+  const handleTransform = async (e) => {
+    e.preventDefault();
+    if (isLoaded) {
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("itemToReplace", itemToReplace);
+      formData.append("replacementItem", replacementItem);
+      formData.append("replacementItem", replacementItem);
+      formData.append("username", user?.username);
+      formData.append("image", image);
+
+      try {
+        const response = await axios.post(
+          "http://localhost:8000/api/v1/media/Process/Image/bgReplace/",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        console.log("Response:", response.data);
+        setResultimage(response.data.data)
+        setClickBtn(true);
+
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    } else {
+      console.log("user is not loaded");
+    }
+  };
+
+  if (!isLoaded) {
+     return (
+      <div className="w-full h-screen flex justify-center items-center bg-white">
+        <img src="/Processing.gif" alt="" />
+      </div>
+    );
+  } else {
+    return (
+      <div className="flex flex-1 overflow-y-scroll">
+      <div className="flex h-full w-full flex-1 flex-col gap-4 rounded-tl-2xl border border-neutral-200 bg-gradient-to-br p-6 dark:from-neutral-800 dark:to-neutral-900 dark:border-neutral-700">
+        <h1 className="text-center text-3xl font-extrabold text-gray-800 dark:text-white">
         Replace What You Want In Seconds
-      </h1>
-      <p className="text-center text-gray-600 dark:text-gray-400">
+        </h1>
+        <p className="text-center text-gray-600 dark:text-gray-400">
         Upload your image and let us handle the magic!
-      </p>
-      <div>
-        <form action="" className="w-[90%] mx-auto my-5 shadow rounded-xl p-3">
+        </p>
+        <div>
+        <form
+          action=""
+          className="w-[90%] mx-auto my-5 shadow rounded-xl p-3"
+        >
           <div>
-            <label htmlFor="" className="text-2xl">Title:</label>
-            <br />
-            <input type="text" name="" id="" className="border-2 border-neutral-200 my-2 rounded-lg p-3 w-full" placeholder="Create A Title"/>
+          <label htmlFor="" className="text-2xl">
+            Title:
+          </label>
+          <br />
+          <input
+            type="text"
+            className="border-2 border-neutral-200 my-2 rounded-lg p-3 w-full"
+            placeholder="Create A Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
           </div>
           <div>
-            <label htmlFor="" className="text-2xl">Item To Be Replaced:</label>
-            <br />
-            <input type="text" name="" id="" className="border-2 border-neutral-200 my-2 rounded-lg p-3 w-full" placeholder="enter the item" required/>
+          <label htmlFor="" className="text-2xl">
+            Item To Be Replaced:
+          </label>
+          <br />
+          <input
+            type="text"
+            className="border-2 border-neutral-200 my-2 rounded-lg p-3 w-full"
+            placeholder="Enter the item"
+            value={itemToReplace}
+            onChange={(e) => setItemToReplace(e.target.value)}
+            required
+          />
           </div>
           <div>
-            <label htmlFor="" className="text-2xl">Item To Be Used There:</label>
-            <br />
-            <input type="text" name="" id="" className="border-2 border-neutral-200 my-2 rounded-lg p-3 w-full" placeholder="enter the iteme" required/>
+          <label htmlFor="" className="text-2xl">
+            Item To Be Used There:
+          </label>
+          <br />
+          <input
+            type="text"
+            className="border-2 border-neutral-200 my-2 rounded-lg p-3 w-full"
+            placeholder="Enter the item"
+            value={replacementItem}
+            onChange={(e) => setReplacementItem(e.target.value)}
+            required
+          />
           </div>
           <div>
-            <label htmlFor="" className="text-2xl">Upload Your Image:</label>
-            <br />
-            <div className="flex items-center justify-center w-full">
-              <label
-                htmlFor="image-upload"
-                className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-neutral-700 dark:border-neutral-600 hover:bg-gray-100 dark:hover:bg-neutral-600"
+          <label htmlFor="" className="text-2xl">
+            Upload Your Image:
+          </label>
+          <br />
+          <div className="flex items-center justify-center w-full">
+            <label
+            htmlFor="image-upload"
+            className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-neutral-700 dark:border-neutral-600 hover:bg-gray-100 dark:hover:bg-neutral-600"
+            >
+            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+              <svg
+              aria-hidden="true"
+              className="w-8 h-8 mb-3 text-gray-400 dark:text-gray-300"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
               >
-                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <svg
-                    aria-hidden="true"
-                    className="w-8 h-8 mb-3 text-gray-400 dark:text-gray-300"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M7 16l-4-4m0 0l4-4m-4 4h16m-5 4l4-4m0 0l-4-4"
-                    ></path>
-                  </svg>
-                  <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                    <span className="font-semibold">Click to upload</span> or drag and drop
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    PNG, JPG, or GIF (MAX. 5MB)
-                  </p>
-                </div>
-                <input id="image-upload" type="file" className="hidden" />
-              </label>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M7 16l-4-4m0 0l4-4m-4 4h16m-5 4l4-4m0 0l-4-4"
+              ></path>
+              </svg>
+              <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+              <span className="font-semibold">Click to upload</span>{" "}
+              or drag and drop
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+              PNG, JPG, or GIF (MAX. 5MB)
+              </p>
             </div>
-            <div className="mt-4 flex justify-center">
-              <button
-                className="px-6 py-3 text-white bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg shadow-md hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-all duration-300"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setClickBtn(true);
-                }}
-              >
-                Transform Image
-              </button>
-            </div>
+            <input
+              id="image-upload"
+              type="file"
+              className="hidden"
+              onChange={(e) => setImage(e.target.files[0])}
+            />
+            </label>
+          </div>
+          <div className="mt-4 flex justify-center">
+            <button
+            className="px-6 py-3 text-white bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg shadow-md hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-all duration-300"
+            onClick={handleTransform}
+            >
+            Transform Image
+            </button>
+          </div>
           </div>
         </form>
-      </div>
-      {
-          clickBtn ? (
-            <div>
-            <h1 className="text-center font-bold">View Your Images</h1>
+        </div>
+        {clickBtn ? (
+        <div>
+          <h1 className="text-center font-bold">View Your Images</h1>
           <div className="w-full flex gap-3 flex-wrap justify-center py-5">
-            <div className="bg-neutral-300 w-96 shadow flex justify-center items-center flex-col gap-4 rounded-lg h-96">
-              Uploaded Image
-            </div>
-            <div className="bg-neutral-300 w-96 shadow flex justify-center items-center flex-col gap-4 rounded-lg h-96">
-              Transformed Image
-            </div>
+          <div
+            className="bg-neutral-300 w-full shadow flex justify-center items-center flex-col gap-4 rounded-lg h-full"
+           
+            
+          >
+            <img src={URL.createObjectURL(image)} alt="nb" className="w-full h-full"/>
+          </div>
+          <div
+            className="bg-neutral-300 w-full shadow flex justify-center items-center flex-col gap-4 rounded-lg h-full"
+            
+          >
+            <img src={Resultimage} alt="kn;k" className="w-full h-full"/>
+          </div>
           </div>
           <div className="mt-6 flex justify-center gap-4 py-4 flex-wrap">
-            <button
-              className="px-6 py-3 text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 rounded-lg shadow-md hover:from-red-500 hover:via-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 transition-all duration-300"
-              onClick={() => alert("Image deleted!")}
-            >
-              Delete Image
-            </button>
-            <button
-              className="px-6 py-3 text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 rounded-lg shadow-md hover:from-green-500 hover:via-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 transition-all duration-300"
-              onClick={() => alert("Image downloaded!")}
-            >
-              Download Image
-            </button>
+          <button
+            className="px-6 py-3 text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 rounded-lg shadow-md hover:from-red-500 hover:via-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 transition-all duration-300"
+            onClick={() => alert("Image deleted!")}
+          >
+            Delete Image
+          </button>
+          <button
+            className="px-6 py-3 text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 rounded-lg shadow-md hover:from-green-500 hover:via-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 transition-all duration-300"
+            onClick={() => alert("Image downloaded!")}
+          >
+            Download Image
+          </button>
           </div>
-            </div>
-          ):(
-            <div></div>
-          )
-      }
-      
-      
-    </div>
-  </div>
-);
+        </div>
+        ) : (
+        <div></div>
+        )}
+      </div>
+      </div>
+    );
+  }
 
-
+ 
 };
 const ImageCard = ({ imageUrl, title, size, date }) => {
   return (
-    <div className="h-80 w-64 rounded-md shadow-xl bg-cover bg-center flex flex-col justify-end p-4" style={{ backgroundImage: `url(${imageUrl})` }}>
+    <div
+      className="h-80 w-64 rounded-md shadow-xl bg-cover bg-center flex flex-col justify-end p-4"
+      style={{ backgroundImage: `url(${imageUrl})` }}
+    >
       <div className="text-black font-medium text-[15px] relative z-10 bg-white p-2 rounded-md inline-block">
         <div className="font-bold">{title}</div>
         <div className="flex flex-row justify-between text-xs mt-1">

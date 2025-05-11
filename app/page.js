@@ -19,7 +19,6 @@ import { useUser } from "@clerk/nextjs";
 
 export default function Home() {
   const { user, isLoaded } = useUser();
-  const [userData, setUserData] = useState(null);
 
   const links = [
     {
@@ -59,7 +58,7 @@ export default function Home() {
     const syncUser = async () => {
       if (!user) return;
 
-      await fetch("https://claudcanvas-backend.onrender.com/api/v1/auth/create/user/sync-user/", {
+      await fetch("http://localhost:8000/api/v1/auth/create/user/sync-user/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -75,7 +74,8 @@ export default function Home() {
     const verify = async () => {
       try {
         const response = await axios.post(
-          "https://claudcanvas-backend.onrender.com/api/v1/media/Process/verify/",
+          // "https://claudcanvas-backend.onrender.com/api/v1/media/Process/verify/",
+          "http://localhost:8000/api/v1/media/Process/verify/",
           {
             username: user.username || user.id, // fallback if username is null
           }
@@ -87,7 +87,10 @@ export default function Home() {
           console.log(
             "Final verification passed" + response.data.message.username
           );
-          setUserData(response.data.message.username);
+          localStorage.setItem(
+            "user",
+            user.username
+          );
         } else {
           console.log("Final verification failed", response);
         }
@@ -151,9 +154,7 @@ export const Logo = () => {
     <a
       href="#"
       className="relative z-20 flex items-center space-x-2 py-1 text-sm font-normal text-black"
-    >
-      
-    </a>
+    ></a>
   );
 };
 export const LogoIcon = () => {
@@ -169,43 +170,129 @@ export const LogoIcon = () => {
 
 // Dummy dashboard component with content
 const Dashboard = () => {
-  return (
-    <div className="flex flex-1 overflow-y-scroll">
-      <div className="flex h-full w-full flex-1 flex-col gap-2 rounded-tl-2xl border border-neutral-200 bg-white p-2 md:p-5 dark:border-neutral-700 dark:bg-neutral-900">
-        <Banner />
-        <div className="flex justify-between items-center mt-5">
-          <h1 className="text-xl font-semibold">Recent Works</h1>
-          <button className="px-4 py-2 rounded-md border border-black bg-gradient-to-r from-[#FF0080] to-[#FF8C00] text-black text-sm hover:shadow-[4px_4px_0px_0px_rgba(0,0,0)] transition duration-200">
-            Upload
-          </button>
-        </div>
+  const [userImage, setUserImage] = useState([]);
+  const { user, isLoaded } = useUser();
+  const router = useRouter();
+  const ViewImages = () => {
+    if (user && user.username) {
+      axios
+        .post("http://localhost:8000/api/v1/media/view/myImages/", {
+          username: user.username, // fallback if username is null
+        })
+        .then((responce) => {
+          console.log(responce.data.message);
+          setUserImage(responce.data.message);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+    else{
+      console.log('No user Available');
+      
+    }
+  };
 
-        <div className="py-5 flex flex-wrap gap-4 justify-center overflow-y-scroll">
-          {[...Array(8)].map((_, idx) => (
-            <ImageCard
-              key={idx}
-              imageUrl="https://images.unsplash.com/photo-1544077960-604201fe74bc?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1651&q=80"
-              title={`Card Title ${idx + 1}`}
-              size="1920x1080"
-              date="2023-10-01"
-            />
-          ))}
+  useEffect(() => {
+    const syncUser = async () => {
+      if (!user) return;
+
+      await fetch("http://localhost:8000/api/v1/auth/create/user/sync-user/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: user.emailAddresses[0].emailAddress,
+          username: user.username || user.id,
+        }),
+      });
+    };
+    if (!isLoaded || !user) return;
+    syncUser();
+    const verify = async () => {
+      try {
+        const response = await axios.post(
+          // "https://claudcanvas-backend.onrender.com/api/v1/media/Process/verify/",
+          "http://localhost:8000/api/v1/media/Process/verify/",
+          {
+            username: user.username || user.id, // fallback if username is null
+          }
+        );
+
+        if (response.data.status_code === 5000) {
+          console.log(response);
+
+          console.log(
+            "Final verification passed" + response.data.message.username
+          );
+          ViewImages();
+        } else {
+          console.log("Final verification failed", response);
+        }
+      } catch (err) {
+        console.error("Verification error:", err);
+      }
+    };
+
+    verify();
+  }, [isLoaded, user]);
+
+  if (!isLoaded) {
+      return (
+        <div className="w-full h-screen flex justify-center items-center bg-white">
+        <img src="/Processing.gif" alt="" />
+      </div>
+      )
+  } else {
+    return (
+      <div className="flex flex-1 overflow-y-scroll">
+        <div className="flex h-full w-full flex-1 flex-col gap-2 rounded-tl-2xl border border-neutral-200 bg-white p-2 md:p-5 dark:border-neutral-700 dark:bg-neutral-900">
+          <Banner />
+          <div className="flex justify-between items-center mt-5">
+            <h1 className="text-xl font-semibold">Recent Works</h1>
+            <button className="px-4 py-2 rounded-md border border-black bg-gradient-to-r from-[#FF0080] to-[#FF8C00] text-black text-sm hover:shadow-[4px_4px_0px_0px_rgba(0,0,0)] transition duration-200">
+              Upload
+            </button>
+          </div>
+  
+          <div className="py-5 flex flex-wrap gap-4 justify-center overflow-y-scroll">
+            {userImage.map((item) => (
+              <div
+                key={item.id}
+                onClick={() =>{
+                  localStorage.setItem("imageId", item.id);
+                  router.push("/SinglePage")
+  
+                }}
+                className="cursor-pointer"
+              >
+                <ImageCard
+                  imageUrl={item.processed_image.replace("http://localhost:8000/media/https%3A", "https:/")}
+                  title={item.title}
+                  size={item.process_type}
+                  date={item.uploaded_at}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
+ 
 };
 const ImageCard = ({ imageUrl, title, size, date }) => {
   return (
     <div
-      className="h-80 w-64 lg:w-52 md:w-80 rounded-md shadow-xl bg-cover bg-center flex flex-col justify-end p-4"
+      className="h-80 w-72 lg:w-70 md:w-80 rounded-md shadow-xl bg-cover bg-center flex flex-col justify-end p-4"
       style={{ backgroundImage: `url(${imageUrl})` }}
     >
-      <div className="text-black font-medium text-[15px] relative z-10 bg-white p-2 rounded-md inline-block">
+      <div className="text-black font-medium text-[15px] relative z-10 shadow-2xl bg-gradient-to-r from-[#FF0080] to-[#FF8C00]  p-2 rounded-md inline-block">
         <div className="font-bold">{title}</div>
         <div className="flex flex-row justify-between text-xs mt-1">
           <span>{size}</span>
-          <span>{date}</span>
+          <span>{new Date(date).toLocaleDateString(undefined, { year: 'numeric', month: 'long' })}</span>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "../../components/ui/sidebar";
 import {
   IconArrowLeft,
@@ -12,8 +12,11 @@ import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { Card } from "@/elements/Card";
 import { Banner } from "@/elements/Banner";
-
+import { useUser } from "@clerk/nextjs";
+import axios from "axios";
+import Subscribe_Basic_Plan from "@/elements/Subscribe_Basic_Plan";
 export default function Home() {
+  const {user,isLoaded} = useUser();
   const links = [
     {
       label: "Dashboard",
@@ -57,7 +60,7 @@ export default function Home() {
         <SidebarBody className="justify-between gap-10">
           <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto text-2xl font-bold">
             <>
-              <Logo />
+       
             </>
             <div className="mt-8 flex flex-col gap-2">
               {links.map((link, idx) => (
@@ -68,11 +71,11 @@ export default function Home() {
           <div>
             <SidebarLink
               link={{
-                label: "Manu Arora",
+                label: user?.username,
                 href: "#",
                 icon: (
                   <img
-                    src="https://assets.aceternity.com/manu.png"
+                    src={user?.imageUrl}
                     className="h-10 w-10 shrink-0 rounded-full"
                     width={50}
                     height={50}
@@ -119,101 +122,133 @@ export const LogoIcon = () => {
 
 // Dummy dashboard component with content
 const Dashboard = () => {
-  return (
-    <div className="flex flex-1 overflow-y-scroll">
-      <div className="flex h-full w-full flex-1 flex-col gap-2 rounded-tl-2xl border border-neutral-200 bg-white p-2 md:p-5 dark:border-neutral-700 dark:bg-neutral-900">
-        <div className="bg-gradient-to-r from-[#FF0080] to-[#FF8C00] rounded-sm p-5">
-          <h1 className="text-center text-4xl font-bold">
-            Track Your Profile Here
-          </h1>
-        </div>
-        <div className="flex justify-between flex-wrap   my-10">
-          <div className="border  shadow-xl py-10 px-10 rounded-xl w-full md:w-[49%] xl:w-[30%] my-5 md:my-0 ">
-            <h1 className="text-neutral-600">Credits Available</h1>
-            <div className="flex items-center gap-2">
-              <img src="./coin.png" alt="" />
-              <h1>0</h1>
-            </div>
-          </div>
-          <div className="border  shadow-xl py-10 px-10 rounded-xl w-full md:w-[49%] xl:w-[30%] my-5 md:my-0">
-            <h1 className="text-neutral-600">Image Manupulations</h1>
-            <div className="flex items-center gap-2">
-              <img src="./image.png" alt="" />
-              <h1>0</h1>
-            </div>
-          </div>
-          <div className="border  shadow-xl py-10 px-10 rounded-xl w-full md:w-[49%] xl:w-[30%] my-5 md:my-0">
-            <h1 className="text-neutral-600">Video Manupulations</h1>
-            <div className="flex items-center gap-2">
-              <img src="./vedio.png" alt="" />
-              <h1>0</h1>
-            </div>
-          </div>
-        </div>
-        <div>
-          <h1 className="text-center font-medium text-2xl">
-            Buy Your Credits Here
-          </h1>
-          <div className="flex flex-wrap justify-center gap-6 mt-10 ">
-            {/* Price Card 1 */}
-            <div className="border shadow-xl rounded-xl p-6 w-full sm:w-[45%] lg:w-[44%] xl:w-[30%] md:w-full bg-gradient-to-r from-[#FF0080] to-[#FF8C00] text-white">
-              <h2 className="text-2xl font-bold mb-4 text-center">
-                Basic Plan
-              </h2>
-              <p className="text-center text-lg mb-6">
-                Perfect for individuals
-              </p>
-              <div className="text-center text-4xl font-extrabold mb-6">
-                $10
-              </div>
-              <ul className="space-y-2 mb-6">
-                <li>✔ 100 Credits</li>
-                <li>✔ Access to Images & video</li>
-                <li>✔ Basic Support</li>
-              </ul>
-              <button className="w-full py-3 rounded-lg bg-white text-[#FF0080] font-bold hover:bg-gray-200 transition">
-                Buy Now
-              </button>
-            </div>
+  const { user, isLoaded } = useUser();
+  const [data,setData] = useState();
+  useEffect(() => {
+    const fetchUserData = () => {
+      if(!isLoaded){
+        console.log("User is not loaded yet");
 
-            {/* Price Card 2 */}
-            <div className="border shadow-xl rounded-xl p-6 w-full sm:w-[45%] lg:w-[44%] xl:w-[30%] md:w-full bg-gradient-to-r from-[#8C00FF] to-[#0080FF] text-white">
-              <h2 className="text-2xl font-bold mb-4 text-center">Pro Plan</h2>
-              <p className="text-center text-lg mb-6">Best for professionals</p>
-              <div className="text-center text-4xl font-extrabold mb-6">
-                $30
+      }
+      else{
+        axios
+      .post("http://localhost:8000/api/v1/media/view/MyProfile/", {
+        username: user?.username,
+      }).then((response) => {
+        console.log(response.data);
+        setData(response.data.message);
+      })
+      .catch((error) => {
+        console.error("Error fetching user data:", error);
+      });
+      }
+      
+    }
+    fetchUserData();
+  },[user]);
+  if (!isLoaded) {
+    return(
+      <div className="w-full h-screen flex justify-center items-center bg-white">
+        <img src="/Processing.gif" alt="" />
+      </div>
+    )
+  }
+  else{
+    return (
+      <div className="flex flex-1 overflow-y-scroll">
+        <div className="flex h-full w-full flex-1 flex-col gap-2 rounded-tl-2xl border border-neutral-200 bg-white p-2 md:p-5 dark:border-neutral-700 dark:bg-neutral-900">
+          <div className="bg-gradient-to-r from-[#FF0080] to-[#FF8C00] rounded-sm p-5">
+            <h1 className="text-center text-4xl font-bold">
+              Track Your Profile Here
+            </h1>
+          </div>
+          <div className="flex justify-between flex-wrap   my-10">
+            <div className="border  shadow-xl py-10 px-10 rounded-xl w-full md:w-[49%] xl:w-[30%] my-5 md:my-0 ">
+              <h1 className="text-neutral-600">Credits Available</h1>
+              <div className="flex items-center gap-2">
+                <img src="./coin.png" alt="" />
+                <h1>{data?.credits}</h1>
               </div>
-              <ul className="space-y-2 mb-6">
-                <li>✔ 500 Credits</li>
-                <li>✔ Access to Images & Videos</li>
-                <li>✔ Priority Support</li>
-              </ul>
-              <button className="w-full py-3 rounded-lg bg-white text-[#8C00FF] font-bold hover:bg-gray-200 transition">
-                Buy Now
-              </button>
             </div>
-            <div className="border shadow-xl rounded-xl p-6 w-full sm:w-[45%] lg:w-[44%] xl:w-[30%] md:w-full bg-gradient-to-r from-[#8C00FF] to-[#0080FF] text-white">
-              <h2 className="text-2xl font-bold mb-4 text-center">
-                Altra Pro Plan
-              </h2>
-              <p className="text-center text-lg mb-6">
-                Best for Highly professional editors
-              </p>
-              <div className="text-center text-4xl font-extrabold mb-6">
-                $50
+            <div className="border  shadow-xl py-10 px-10 rounded-xl w-full md:w-[49%] xl:w-[30%] my-5 md:my-0">
+              <h1 className="text-neutral-600">Image Manupulations</h1>
+              <div className="flex items-center gap-2">
+                <img src="./image.png" alt="" />
+                <h1>{data?.images_manipulated}</h1>
               </div>
-              <ul className="space-y-2 mb-6">
-                <li>✔ 1000 Credits</li>
-                <li>✔ Access to Images & Videos</li>
-                <li>✔ Priority Support</li>
-              </ul>
+            </div>
+            <div className="border  shadow-xl py-10 px-10 rounded-xl w-full md:w-[49%] xl:w-[30%] my-5 md:my-0">
+              <h1 className="text-neutral-600">Video Manupulations</h1>
+              <div className="flex items-center gap-2">
+                <img src="./vedio.png" alt="" />
+                <h1>{data?.video_manipulated}</h1>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h1 className="text-center font-medium text-2xl">
+              Buy Your Credits Here
+            </h1>
+            <div className="flex flex-wrap justify-center gap-6 mt-10 ">
+              {/* Price Card 1 */}
+              <div className="border shadow-xl rounded-xl p-6 w-full sm:w-[45%] lg:w-[44%] xl:w-[30%] md:w-full bg-gradient-to-r from-[#FF0080] to-[#FF8C00] text-white">
+                <h2 className="text-2xl font-bold mb-4 text-center">
+                  Basic Plan
+                </h2>
+                <p className="text-center text-lg mb-6">
+                  Perfect for individuals
+                </p>
+                <div className="text-center text-4xl font-extrabold mb-6">
+                  $10
+                </div>
+                <ul className="space-y-2 mb-6">
+                  <li>✔ 100 Credits</li>
+                  <li>✔ Access to Images & video</li>
+                  <li>✔ Basic Support</li>
+                </ul>
+                <Subscribe_Basic_Plan />
+              </div>
+  
+              {/* Price Card 2 */}
+              <div className="border shadow-xl rounded-xl p-6 w-full sm:w-[45%] lg:w-[44%] xl:w-[30%] md:w-full bg-gradient-to-r from-[#8C00FF] to-[#0080FF] text-white">
+                <h2 className="text-2xl font-bold mb-4 text-center">Pro Plan</h2>
+                <p className="text-center text-lg mb-6">Best for professionals</p>
+                <div className="text-center text-4xl font-extrabold mb-6">
+                  $30
+                </div>
+                <ul className="space-y-2 mb-6">
+                  <li>✔ 500 Credits</li>
+                  <li>✔ Access to Images & Videos</li>
+                  <li>✔ Priority Support</li>
+                </ul>
               <button className="w-full py-3 rounded-lg bg-white text-[#8C00FF] font-bold hover:bg-gray-200 transition">
-                Buy Now
-              </button>
+                  Buy Now
+                </button>
+              </div>
+              <div className="border shadow-xl rounded-xl p-6 w-full sm:w-[45%] lg:w-[44%] xl:w-[30%] md:w-full bg-gradient-to-r from-[#8C00FF] to-[#0080FF] text-white">
+                <h2 className="text-2xl font-bold mb-4 text-center">
+                  Altra Pro Plan
+                </h2>
+                <p className="text-center text-lg mb-6">
+                  Best for Highly professional editors
+                </p>
+                <div className="text-center text-4xl font-extrabold mb-6">
+                  $50
+                </div>
+                <ul className="space-y-2 mb-6">
+                  <li>✔ 1000 Credits</li>
+                  <li>✔ Access to Images & Videos</li>
+                  <li>✔ Priority Support</li>
+                </ul>
+                <button className="w-full py-3 rounded-lg bg-white text-[#8C00FF] font-bold hover:bg-gray-200 transition">
+                  Buy Now
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
+  
 };

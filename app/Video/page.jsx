@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "../../components/ui/sidebar";
 import {
   IconArrowLeft,
@@ -13,8 +13,11 @@ import { cn } from "@/lib/utils";
 import { Card } from "@/elements/Card";
 import { Banner } from "@/elements/Banner";
 import Link from "next/link";
-
+import { useRouter } from "next/navigation";
+import axios from "axios";
+import { useUser } from "@clerk/nextjs";
 export default function Home() {
+  const {user ,isLoaded} = useUser()
   const links = [
       {
         label: "Dashboard",
@@ -58,7 +61,7 @@ export default function Home() {
         <SidebarBody className="justify-between gap-10">
           <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto text-2xl font-bold">
             <>
-              <Logo />
+        
             </>
             <div className="mt-8 flex flex-col gap-2">
               {links.map((link, idx) => (
@@ -69,8 +72,8 @@ export default function Home() {
           <div>
             <SidebarLink
               link={{
-                label: "Manu Arora",
-                href: "/Profile",
+                label: user?.username,
+                href: user?.imageUrl,
                 icon: (
                   <img
                     src="https://assets.aceternity.com/manu.png"
@@ -120,63 +123,94 @@ export const LogoIcon = () => {
 
 // Dummy dashboard component with content
 const Dashboard = () => {
-  return (
-    <div className="flex flex-1 overflow-y-scroll">
-      <div className="flex h-full w-full flex-1 flex-col gap-4 rounded-tl-2xl border border-neutral-200 bg-white p-4 md:p-6 dark:border-neutral-700 dark:bg-neutral-900">
-        <div className="bg-gradient-to-r from-[#FF0080] to-[#FF8C00] rounded-lg p-6 shadow-lg">
-          <h1 className="text-center text-3xl font-extrabold text-white">
-            Explore Stunning Video Transformations
-          </h1>
-          <div className="flex flex-wrap justify-center gap-4 py-6">
-            <div className="p-2">
-              <div className="rounded-lg overflow-hidden shadow-md">
-                <video
-                  src="https://res.cloudinary.com/prod/video/upload/me/tx-cards/video-preview.mp4"
-                  alt=""
-                  autoPlay
-                  controls
-                  className="w-64 h-48"
-                />
+  const {user,isLoaded} = useUser()
+  const [data , setData] = useState([])
+  const route = useRouter()
+  useEffect(() => {
+    const fetchData = () => {
+      if(isLoaded) {
+        axios.post("http://localhost:8000/api/v1/media/view/myVideos/" , {
+          username : user?.username
+        }).then((res) => {
+          console.log(res.data);
+          setData(res.data.message)
+          route.refresh()
+        }).catch((err) => {
+          console.log(err);
+          
+        })
+      }
+    }
+    fetchData()
+  },[user])
+
+  if (!isLoaded) {
+    return (
+      <div className="w-full h-screen flex justify-center items-center bg-white">
+      <img src="/Processing.gif" alt="" />
+    </div>
+    )
+  } else {
+    return (
+      <div className="flex flex-1 overflow-y-scroll">
+        <div className="flex h-full w-full flex-1 flex-col gap-4 rounded-tl-2xl border border-neutral-200 bg-white p-4 md:p-6 dark:border-neutral-700 dark:bg-neutral-900">
+          <div className="bg-gradient-to-r from-[#FF0080] to-[#FF8C00] rounded-lg p-6 shadow-lg">
+            <h1 className="text-center text-3xl font-extrabold text-white">
+              Explore Stunning Video Transformations
+            </h1>
+            <div className="flex flex-wrap justify-center gap-4 py-6">
+              <div className="p-2">
+                <div className="rounded-lg overflow-hidden shadow-md">
+                  <video
+                    src="https://res.cloudinary.com/prod/video/upload/me/tx-cards/video-preview.mp4"
+                    alt=""
+                    autoPlay
+                    controls
+                    className="w-64 h-48"
+                  />
+                </div>
+                <Link href={"/Video/PreviewVideo"}>
+                <div className="text-center text-lg font-medium mt-2 bg-white rounded-lg">
+                  Video Preview
+                </div>
+                </Link>
               </div>
-              <Link href={"/Video/PreviewVideo"}>
-              <div className="text-center text-lg font-medium mt-2 bg-white rounded-lg">
-                Video Preview
+             
+              <div className="p-2">
+                <div className="rounded-lg overflow-hidden shadow-md">
+                  <video
+                    src="https://res.cloudinary.com/prod/video/upload/me/tx-cards/optimize-and-deliver.mp4"
+                    alt=""
+                    autoPlay
+                    controls
+                    className="w-64 h-48"
+                  />
+                </div>
+                <Link href={"/Video/OptimizeVideo"}>
+                <div className="text-center text-lg font-medium mt-2 bg-white rounded-lg">
+                  Optimize Video
+                </div>
+                </Link>
               </div>
-              </Link>
-            </div>
-           
-            <div className="p-2">
-              <div className="rounded-lg overflow-hidden shadow-md">
-                <video
-                  src="https://res.cloudinary.com/prod/video/upload/me/tx-cards/optimize-and-deliver.mp4"
-                  alt=""
-                  autoPlay
-                  controls
-                  className="w-64 h-48"
-                />
-              </div>
-              <Link href={"/Video/OptimizeVideo"}>
-              <div className="text-center text-lg font-medium mt-2 bg-white rounded-lg">
-                Optimize Video
-              </div>
-              </Link>
             </div>
           </div>
-        </div>
-        <div className="flex justify-between items-center mt-6">
-          <h1 className="text-2xl font-bold">Recent Works</h1>
-          <button className="px-5 py-2 rounded-lg border border-black bg-gradient-to-r from-[#FF0080] to-[#FF8C00] text-white text-sm font-semibold hover:shadow-lg transition duration-200">
-            Upload
-          </button>
-        </div>
-        <div className="py-3 flex flex-wrap gap-4 lg:gap-2 justify-center ">
-          {Array(6)
-            .fill(null)
-            .map((_, idx) => (
-              <div key={idx} className="p-2">
+          <div className="flex justify-between items-center mt-6">
+            <h1 className="text-2xl font-bold">Recent Works</h1>
+            <button className="px-5 py-2 rounded-lg border border-black bg-gradient-to-r from-[#FF0080] to-[#FF8C00] text-white text-sm font-semibold hover:shadow-lg transition duration-200">
+              Upload
+            </button>
+          </div>
+          <div className="py-3 flex flex-wrap gap-4 lg:gap-2 justify-center ">
+            {
+              data.map((item) => (
+                <div key={item.id} className="p-2" onClick={() => {
+                  localStorage.setItem('Video_ID' , item.id)
+                  route.push("/VideoSinglePage")
+                 
+                }}>
                 <div className="rounded-lg overflow-hidden shadow-md ">
                   <video
-                    src="https://res.cloudinary.com/prod/video/upload/me/tx-cards/trim-video.mp4"
+                    src={item.transformed_video_file}
                     alt=""
                     autoPlay
                     controls
@@ -184,14 +218,19 @@ const Dashboard = () => {
                   />
                 </div>
                 <div className="text-center text-lg font-medium mt-2 bg-gradient-to-r from-[#FF0080] to-[#FF8C00] text-white rounded-md py-1">
-                  Video Name
+               {item.title}
                 </div>
               </div>
-            ))}
+              ))
+            }
+               
+            
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
+ 
 };
 
                                                                                                              

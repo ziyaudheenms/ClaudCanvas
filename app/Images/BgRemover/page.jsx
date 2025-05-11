@@ -60,7 +60,7 @@ export default function Home() {
     const syncUser = async () => {
       if (!user) return;
 
-      await fetch("https://claudcanvas-backend.onrender.comapi/v1/auth/create/user/sync-user/", {
+      await fetch("http://localhost:8000/api/v1/auth/create/user/sync-user/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -76,7 +76,7 @@ export default function Home() {
     const verify = async () => {
       try {
         const response = await axios.post(
-          "https://claudcanvas-backend.onrender.com/api/v1/media/Process/verify/",
+          "http://localhost:8000/api/v1/media/Process/verify/",
           {
             username: user.username || user.id, // fallback if username is null
           }
@@ -183,7 +183,7 @@ const Dashboard = () => {
 
     try {
       const response = await axios.post(
-        "https://claudcanvas-backend.onrender.com/api/v1/media/Process/Image/bgRemove/",
+        "http://localhost:8000/api/v1/media/Process/Image/bgRemove/",
         formData,
         {
           headers: {
