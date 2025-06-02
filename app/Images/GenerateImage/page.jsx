@@ -27,7 +27,6 @@ import { useUser } from "@clerk/nextjs";
 import { LayoutDashboard } from "lucide-react";
 import { ImagePlus } from "lucide-react";
 import { TvMinimalPlay } from "lucide-react";
-import { Drama } from "lucide-react";
 import { LogOut } from "lucide-react";
 export default function Home() {
   const [clickBtn, setClickBtn] = useState(false);
