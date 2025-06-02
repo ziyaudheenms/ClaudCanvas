@@ -3,6 +3,11 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { ImageDown } from "lucide-react";
+import { Trash2 } from "lucide-react";
+import { CreditCard } from 'lucide-react';
+import { saveAs } from 'file-saver';
 function page() {
   const { user, isLoaded } = useUser();
   const [Data, SetData] = useState([]);
@@ -44,12 +49,18 @@ function page() {
         <h1 className="text-center text-4xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-transparent bg-clip-text font-extrabold mb-12">
           🎥 Video Transformation Hub 🎥
         </h1>
-        <h4 className="text-2xl text-center text-blue-600 mb-8">
-          Transformation Type:{" "}
-          <span className="text-purple-600 font-semibold">
-            {Load ? Data.process_type : "Loading..."}
-          </span>
-        </h4>
+        
+        <div className="flex flex-between justify-center mt-8 flex-wrap mx-auto gap-10">
+          <h3 className="scroll-m-20  pb-2 text-xl font-semibold tracking-tight first:mt-0">
+            Username: <span className="text-gray-600">{Data.user}</span>
+          </h3>
+          <h3 className="scroll-m-20  pb-2 text-xl font-semibold tracking-tight first:mt-0">
+         Title: <span className="text-gray-600">{Data.title}</span>
+          </h3>
+          <h3 className="scroll-m-20  pb-2 text-xl font-semibold tracking-tight first:mt-0">
+         Transformation: <span className="text-gray-600">{Data.process_type}</span>
+          </h3>
+        </div>
         <div className="flex justify-around mt-8 flex-wrap mx-auto gap-12">
           <div
             className="text-center w-full sm:w-1/2 lg:w-2/5 flex justify-center items-center flex-col bg-white shadow-2xl rounded-2xl p-8 transform hover:scale-105 transition-transform duration-300"
@@ -86,6 +97,24 @@ function page() {
             />
           </div>
         </div>
+        <div className="mt-6 flex justify-center gap-4 py-4 flex-wrap">
+                      <Button
+                        className="px-6 py-3 text-white transition-all duration-300"
+                        onClick={() => alert("Image deleted!")}
+                      >
+                        <Trash2 />
+                        Delete Video
+                      </Button>
+                      <Button
+                        className="px-6 py-3 text-white bg-[#1d4ed8]  rounded-lg shadow-md focus:outline-none focus:ring-2  transition-all duration-300"
+                        onClick={() => {
+                          saveAs(Data.transformed_video_file, "video.mp4");
+                        }}
+                      >
+                        <ImageDown />
+                        Download Video
+                      </Button>
+                    </div>
         <div
           className="mt-12 text-center bg-white shadow-2xl rounded-2xl p-8 w-[90%] mx-auto transform hover:scale-105 transition-transform duration-300"
           style={{
@@ -93,14 +122,9 @@ function page() {
               "0 8px 16px rgba(59, 130, 246, 0.3), 0 4px 8px rgba(37, 99, 235, 0.3)",
           }}
         >
-          <h3 className="text-2xl font-semibold mb-4">
-            📌 Title:{" "}
-            <span className="text-gray-600 font-medium">{Data.title}</span>
-          </h3>
-          <h3 className="text-2xl font-semibold">
-            💳 Credits Used:{" "}
-            <span className="text-gray-600 font-medium">4</span>
-          </h3>
+           <h3 className="scroll-m-20 gap-2 flex items-center justify-center  pb-2 text-xl font-semibold tracking-tight first:mt-0">
+                      <CreditCard /> Credits Used: <span className="text-gray-600">4</span>
+                    </h3>
         </div>
       </div>
     );

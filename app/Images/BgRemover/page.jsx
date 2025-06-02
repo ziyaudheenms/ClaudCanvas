@@ -19,41 +19,38 @@ import { Banner } from "@/elements/Banner";
 import { FileUpload } from "@/elements/FileUpload";
 import { useUser } from "@clerk/nextjs";
 import axios from "axios";
+import { Button } from "@/components/ui/button"
+import { LayoutDashboard } from "lucide-react";
+import { ImagePlus } from "lucide-react";
+import { TvMinimalPlay } from "lucide-react";
+import { LogOut } from "lucide-react";
 
 export default function Home() {
   const { user, isLoaded } = useUser();
   const [userData, setUserData] = useState(null);
   const [clickBtn, setClickBtn] = useState(false);
-  const links = [
-    {
-      label: "Dashboard",
-      href: "/",
-      icon: (
-        <IconBrandTabler className="h-8 w-8 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
-    },
-    {
-      label: "Images",
-      href: "/Images",
-      icon: (
-        <IconSlideshow className="h-8 w-8 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
-    },
-    {
-      label: "Video",
-      href: "/Video",
-      icon: (
-        <IconVideo className="h-8 w-8 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
-    },
-    {
-      label: "Logout",
-      href: "#",
-      icon: (
-        <IconArrowLeft className="h-8 w-8 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
-    },
-  ];
+   const links = [
+      {
+        label: "Dashboard",
+        href: "/",
+        icon: <LayoutDashboard className="h-8 w-8 shrink-0 text-black" />,
+      },
+      {
+        label: "Images",
+        href: "/Images",
+        icon: <ImagePlus className="h-8 w-8 shrink-0 text-black" />,
+      },
+      {
+        label: "Video",
+        href: "/Video",
+        icon: <TvMinimalPlay className="h-8 w-8 shrink-0 text-black" />,
+      },
+      {
+        label: "Logout",
+        href: "#",
+        icon: <LogOut className="h-8 w-8 shrink-0 text-black" />,
+      },
+    ];
   const [open, setOpen] = useState(false);
   const [LoggedIn, setLoggedIn] = useState(false);
   useEffect(() => {
@@ -164,6 +161,7 @@ export const LogoIcon = () => {
 const Dashboard = () => {
   const [clickBtn, setClickBtn] = useState(false);
   const [title, setTitle] = useState("");
+  const [LoadIcon, setLoadIcon] = useState(false);
   const [image, setImage] = useState(null);
   const [finalImage, setfinalImage] = useState('https://www.bing.com/images/search?q=selon+musk&id=1EA95BEDBF9FCD49CA876402607CD534365A74DF');
   const { user, isLoaded } = useUser();
@@ -182,6 +180,7 @@ const Dashboard = () => {
     formData.append("username", user.username);
 
     try {
+      setLoadIcon(true)
       const response = await axios.post(
         "http://localhost:8000/api/v1/media/Process/Image/bgRemove/",
         formData,
@@ -201,6 +200,7 @@ const Dashboard = () => {
       
 
       setfinalImage(response.data.data)
+      setLoadIcon(false)
       setClickBtn(true);
     } catch (error) {
       console.error("Error transforming image:", error);
@@ -210,7 +210,7 @@ const Dashboard = () => {
   return (
     <div className="flex flex-1 overflow-y-scroll">
       <div className="flex h-full w-full flex-1 flex-col gap-4 rounded-tl-2xl border border-neutral-200 bg-gradient-to-br p-6  dark:from-neutral-800 dark:to-neutral-900 dark:border-neutral-700">
-        <h1 className="text-center text-3xl font-extrabold text-gray-800 dark:text-white">
+        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight  text-center">
           Remove Your Background In Seconds
         </h1>
         <p className="text-center text-gray-600 dark:text-gray-400">
@@ -219,24 +219,24 @@ const Dashboard = () => {
         <div>
           <form
             action=""
-            className="w-[90%] mx-auto my-5 shadow rounded-xl p-3"
+            className="w-[90%] mx-auto my-5 shadow shadow-gray-300 rounded-xl p-3 bg-white"
           >
             <div>
-              <label htmlFor="title" className="text-2xl">
+              <label htmlFor="title" className="scroll-m-20 text-xl font-semibold tracking-tight">
                 Title:
               </label>
               <br />
               <input
                 type="text"
                 id="title"
-                className="border-2 border-neutral-200 my-2 rounded-lg p-3 w-full"
+                className="border-2 border-neutral-200 my-2 rounded-lg p-3 w-full scroll-m-20 text-[15px] font-semibold tracking-tight"
                 placeholder="Create A Title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
               />
             </div>
             <div>
-              <label htmlFor="image-upload" className="text-2xl">
+              <label htmlFor="image-upload" className="scroll-m-20 text-xl font-semibold tracking-tight my-2">
                 Upload Your Image:
               </label>
               <br />
@@ -278,12 +278,23 @@ const Dashboard = () => {
                 </label>
               </div>
               <div className="mt-4 flex justify-center">
-                <button
-                  className="px-6 py-3 text-white bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg shadow-md hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-all duration-300"
+                <div
+                  className=""
                   onClick={handleTransform}
                 >
-                  Transform Image
-                </button>
+                  <Button>{LoadIcon ? (
+                    <motion.div
+                      animate={{ opacity: [0, 1, 0] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                      className="text-center text-white "
+                    >
+                      Loading...
+                    </motion.div>
+                  ) : (
+                    "Transform Image"
+                  )}</Button>
+
+                </div>
               </div>
             </div>
           </form>
@@ -316,14 +327,14 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="mt-6 flex justify-center gap-4 py-4 flex-wrap">
-              <button
-                className="px-6 py-3 text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 rounded-lg shadow-md hover:from-red-500 hover:via-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 transition-all duration-300"
+              <Button
+                className="px-6 py-3 text-white transition-all duration-300"
                 onClick={() => alert("Image deleted!")}
               >
                 Delete Image
-              </button>
-              <button
-                className="px-6 py-3 text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 rounded-lg shadow-md hover:from-green-500 hover:via-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 transition-all duration-300"
+              </Button>
+              <Button
+                className="px-6 py-3 text-white bg-[#1d4ed8]  rounded-lg shadow-md focus:outline-none focus:ring-2  transition-all duration-300"
                 onClick={() => {
                   if (finalImage) {
                     const link = document.createElement("a");
@@ -336,7 +347,7 @@ const Dashboard = () => {
                 }}
               >
                 Download Image
-              </button>
+              </Button>
             </div>
           </div>
         ) : (

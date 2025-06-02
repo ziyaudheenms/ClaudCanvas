@@ -19,40 +19,35 @@ import { Banner } from "@/elements/Banner";
 import { FileUpload } from "@/elements/FileUpload";
 import { useUser } from "@clerk/nextjs";
 import axios from "axios";
-
+import { LayoutDashboard } from "lucide-react";
+import { ImagePlus } from "lucide-react";
+import { TvMinimalPlay } from "lucide-react";
+import { LogOut } from "lucide-react";
 export default function Home() {
   const { user, isLoaded } = useUser();
   const [clickBtn, setClickBtn] = useState(false);
-  const links = [
-    {
-      label: "Dashboard",
-      href: "/",
-      icon: (
-        <IconBrandTabler className="h-8 w-8 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
-    },
-    {
-      label: "Images",
-      href: "/Images",
-      icon: (
-        <IconSlideshow className="h-8 w-8 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
-    },
-    {
-      label: "Video",
-      href: "/Video",
-      icon: (
-        <IconVideo className="h-8 w-8 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
-    },
-    {
-      label: "Logout",
-      href: "#",
-      icon: (
-        <IconArrowLeft className="h-8 w-8 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
-    },
-  ];
+     const links = [
+     {
+       label: "Dashboard",
+       href: "/",
+       icon: <LayoutDashboard className="h-8 w-8 shrink-0 text-black" />,
+     },
+     {
+       label: "Images",
+       href: "/Images",
+       icon: <ImagePlus className="h-8 w-8 shrink-0 text-black" />,
+     },
+     {
+       label: "Video",
+       href: "/Video",
+       icon: <TvMinimalPlay className="h-8 w-8 shrink-0 text-black" />,
+     },
+     {
+       label: "Logout",
+       href: "#",
+       icon: <LogOut className="h-8 w-8 shrink-0 text-black" />,
+     },
+   ];
   const [open, setOpen] = useState(false);
   const [LoggedIn, setLoggedIn] = useState(false);
 

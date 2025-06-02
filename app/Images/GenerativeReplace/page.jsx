@@ -19,37 +19,38 @@ import { Banner } from "@/elements/Banner";
 import { FileUpload } from "@/elements/FileUpload";
 import axios from "axios";
 import { useUser } from "@clerk/nextjs";
+import { Button } from "@/components/ui/button";
+import { Loader } from "lucide-react";
+import { Rotate3d } from "lucide-react";
+import { Trash2 } from "lucide-react";
+import { ImageDown } from "lucide-react";
+import { LayoutDashboard } from "lucide-react";
+import { ImagePlus } from "lucide-react";
+import { TvMinimalPlay } from "lucide-react";
+import { LogOut } from "lucide-react";
 export default function Home() {
   const {user , isLoaded} = useUser()
   const [clickBtn, setClickBtn] = useState(false);
-  const links = [
+ const links = [
     {
       label: "Dashboard",
       href: "/",
-      icon: (
-        <IconBrandTabler className="h-8 w-8 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
+      icon: <LayoutDashboard className="h-8 w-8 shrink-0 text-black" />,
     },
     {
       label: "Images",
       href: "/Images",
-      icon: (
-        <IconSlideshow className="h-8 w-8 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
+      icon: <ImagePlus className="h-8 w-8 shrink-0 text-black" />,
     },
     {
       label: "Video",
       href: "/Video",
-      icon: (
-        <IconVideo className="h-8 w-8 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
+      icon: <TvMinimalPlay className="h-8 w-8 shrink-0 text-black" />,
     },
     {
       label: "Logout",
       href: "#",
-      icon: (
-        <IconArrowLeft className="h-8 w-8 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
+      icon: <LogOut className="h-8 w-8 shrink-0 text-black" />,
     },
   ];
   const [open, setOpen] = useState(false);
@@ -130,6 +131,7 @@ export const LogoIcon = () => {
 // Dummy dashboard component with content
 const Dashboard = () => {
   const [clickBtn, setClickBtn] = useState(false);
+  const [LoadIcon, setLoadIcon] = useState(false);
   const [title, setTitle] = useState("");
   const [itemToReplace, setItemToReplace] = useState("");
   const [replacementItem, setReplacementItem] = useState("");
@@ -149,6 +151,7 @@ const Dashboard = () => {
       formData.append("image", image);
 
       try {
+        setLoadIcon(true)
         const response = await axios.post(
           "http://localhost:8000/api/v1/media/Process/Image/bgReplace/",
           formData,
@@ -159,7 +162,8 @@ const Dashboard = () => {
           }
         );
         console.log("Response:", response.data);
-        setResultimage(response.data.data)
+        setResultimage(response.data.data);
+        setLoadIcon(false);
         setClickBtn(true);
 
       } catch (error) {
@@ -180,7 +184,7 @@ const Dashboard = () => {
     return (
       <div className="flex flex-1 overflow-y-scroll">
       <div className="flex h-full w-full flex-1 flex-col gap-4 rounded-tl-2xl border border-neutral-200 bg-gradient-to-br p-6 dark:from-neutral-800 dark:to-neutral-900 dark:border-neutral-700">
-        <h1 className="text-center text-3xl font-extrabold text-gray-800 dark:text-white">
+        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight  text-center">
         Replace What You Want In Seconds
         </h1>
         <p className="text-center text-gray-600 dark:text-gray-400">
@@ -192,7 +196,7 @@ const Dashboard = () => {
           className="w-[90%] mx-auto my-5 shadow rounded-xl p-3"
         >
           <div>
-          <label htmlFor="" className="text-2xl">
+          <label htmlFor="" className="scroll-m-20 text-xl font-semibold tracking-tight">
             Title:
           </label>
           <br />
@@ -205,7 +209,7 @@ const Dashboard = () => {
           />
           </div>
           <div>
-          <label htmlFor="" className="text-2xl">
+          <label htmlFor="" className="scroll-m-20 text-xl font-semibold tracking-tight">
             Item To Be Replaced:
           </label>
           <br />
@@ -219,7 +223,7 @@ const Dashboard = () => {
           />
           </div>
           <div>
-          <label htmlFor="" className="text-2xl">
+          <label htmlFor="" className="scroll-m-20 text-xl font-semibold tracking-tight">
             Item To Be Used There:
           </label>
           <br />
@@ -233,7 +237,7 @@ const Dashboard = () => {
           />
           </div>
           <div>
-          <label htmlFor="" className="text-2xl">
+          <label htmlFor="" className="scroll-m-20 text-xl font-semibold tracking-tight">
             Upload Your Image:
           </label>
           <br />
@@ -274,52 +278,83 @@ const Dashboard = () => {
             />
             </label>
           </div>
-          <div className="mt-4 flex justify-center">
-            <button
-            className="px-6 py-3 text-white bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg shadow-md hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-all duration-300"
-            onClick={handleTransform}
-            >
-            Transform Image
-            </button>
+          <div className="mt-4 flex justify-center" onClick={handleTransform}>
+            <Button>
+                    {LoadIcon ? (
+                      <motion.div
+                        animate={{ opacity: [0, 1, 0] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                        className="text-center text-white flex gap-2 items-center "
+                      >
+                        <Loader />
+                        Loading...
+                      </motion.div>
+                    ) : (
+                      <>
+                        <Rotate3d />
+                        Transform Image
+                      </>
+                    )}
+                  </Button>
           </div>
           </div>
         </form>
         </div>
         {clickBtn ? (
-        <div>
-          <h1 className="text-center font-bold">View Your Images</h1>
-          <div className="w-full flex gap-3 flex-wrap justify-center py-5">
-          <div
-            className="bg-neutral-300 w-full shadow flex justify-center items-center flex-col gap-4 rounded-lg h-full"
-           
-            
-          >
-            <img src={URL.createObjectURL(image)} alt="nb" className="w-full h-full"/>
+          <div>
+            <h1 className="text-center font-bold">View Your Images</h1>
+            <div className="w-full flex flex-col justify-center gap-3 flex-wrap  py-5">
+              <div className="bg-neutral-300 w-fit shadow flex justify-center items-center flex-col gap-4 rounded-lg h-fit mx-auto">
+                {image ? (
+                  <img
+                    src={URL.createObjectURL(image)}
+                    alt="Uploaded"
+                    className="h-full w-full object-cover rounded-lg"
+                  />
+                ) : (
+                  <p>No image uploaded</p>
+                )}
+              </div>
+              <div className="bg-neutral-300 w-fit shadow flex justify-center items-center flex-col gap-4 rounded-lg h-fit mx-auto">
+                {Resultimage ? (
+                  <img
+                    src={Resultimage}
+                    alt="final"
+                    className="h-full w-full object-cover rounded-lg"
+                  />
+                ) : (
+                  <p>Image preview Loading</p>
+                )}
+              </div>
+            </div>
+            <div className="mt-6 flex justify-center gap-4 py-4 flex-wrap">
+              <Button
+                className="px-6 py-3 text-white transition-all duration-300"
+                onClick={() => alert("Image deleted!")}
+              >
+                <Trash2 />
+                Delete Image
+              </Button>
+              <Button
+                className="px-6 py-3 text-white bg-[#1d4ed8]  rounded-lg shadow-md focus:outline-none focus:ring-2  transition-all duration-300"
+                onClick={() => {
+                  if (finalImage) {
+                    const link = document.createElement("a");
+                    link.href = finalImage;
+                    link.download = "transformed-image.png";
+                    link.click();
+                  } else {
+                    alert("No image available to download!");
+                  }
+                }}
+              >
+                <ImageDown />
+                Download Image
+              </Button>
+            </div>
           </div>
-          <div
-            className="bg-neutral-300 w-full shadow flex justify-center items-center flex-col gap-4 rounded-lg h-full"
-            
-          >
-            <img src={Resultimage} alt="kn;k" className="w-full h-full"/>
-          </div>
-          </div>
-          <div className="mt-6 flex justify-center gap-4 py-4 flex-wrap">
-          <button
-            className="px-6 py-3 text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 rounded-lg shadow-md hover:from-red-500 hover:via-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 transition-all duration-300"
-            onClick={() => alert("Image deleted!")}
-          >
-            Delete Image
-          </button>
-          <button
-            className="px-6 py-3 text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 rounded-lg shadow-md hover:from-green-500 hover:via-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 transition-all duration-300"
-            onClick={() => alert("Image downloaded!")}
-          >
-            Download Image
-          </button>
-          </div>
-        </div>
         ) : (
-        <div></div>
+          <div></div>
         )}
       </div>
       </div>

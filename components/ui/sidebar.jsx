@@ -61,7 +61,7 @@ export const DesktopSidebar = ({
   return (<>
     <motion.div
       className={cn(
-        "h-full px-4 py-4 hidden  md:flex md:flex-col bg-neutral-100 dark:bg-neutral-800 w-[0px] shrink-0",
+        "h-full px-4 py-4 hidden  md:flex md:flex-col bg-white dark:bg-neutral-800 w-[0px] shrink-0",
         className
       )}
       animate={{
@@ -84,7 +84,7 @@ export const MobileSidebar = ({
   return (<>
     <div
       className={cn(
-        "h-10 px-4 py-4 flex flex-row md:hidden  items-center justify-between bg-neutral-100 dark:bg-neutral-800 w-full"
+        "h-10 px-4 py-4 flex flex-row md:hidden  items-center justify-between bg-white dark:bg-neutral-800 w-full"
       )}
       {...props}>
       <div className="flex justify-end z-20 w-full">
@@ -136,7 +136,7 @@ export const SidebarLink = ({
           display: animate ? (open ? "inline-block" : "none") : "inline-block",
           opacity: animate ? (open ? 1 : 0) : 1,
         }}
-        className="text-neutral-700 dark:text-neutral-200 text-xl group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0">
+        className="scroll-m-20 text-xl font-semibold tracking-normal text-center">
         {link.label}
       </motion.span>
     </a>)

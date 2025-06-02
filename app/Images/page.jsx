@@ -13,38 +13,42 @@ import { cn } from "@/lib/utils";
 import { Card } from "@/elements/Card";
 import { Banner } from "@/elements/Banner";
 import Link from "next/link";
-
+import { LayoutDashboard } from "lucide-react";
+import { ImagePlus } from "lucide-react";
+import { TvMinimalPlay } from "lucide-react";
+import { LogOut } from "lucide-react";
+import { Store } from "lucide-react";
 export default function Home() {
-  const links = [
-      {
-        label: "Dashboard",
-        href: "/",
-        icon: (
-          <IconBrandTabler className="h-8 w-8 shrink-0 text-neutral-700 dark:text-neutral-200" />
-        ),
-      },
-      {
-        label: "Images",
-        href: "/Images",
-        icon: (
-          <IconSlideshow className="h-8 w-8 shrink-0 text-neutral-700 dark:text-neutral-200" />
-        ),
-      },
-      {
-        label: "Video",
-        href: "/Video",
-        icon: (
-          <IconVideo className="h-8 w-8 shrink-0 text-neutral-700 dark:text-neutral-200" />
-        ),
-      },
-      {
-        label: "Logout",
-        href: "#",
-        icon: (
-          <IconArrowLeft className="h-8 w-8 shrink-0 text-neutral-700 dark:text-neutral-200" />
-        ),
-      },
-    ];
+   const links = [
+    {
+      label: "Dashboard",
+      href: "/",
+      icon: (
+        <LayoutDashboard className="h-8 w-8 shrink-0 text-black" />
+      ),
+    },
+    {
+      label: "Images",
+      href: "/Images",
+      icon: (
+        <ImagePlus className="h-8 w-8 shrink-0 text-black" />
+      ),
+    },
+    {
+      label: "Video",
+      href: "/Video",
+      icon: (
+        <TvMinimalPlay className="h-8 w-8 shrink-0 text-black" />
+      ),
+    },
+    {
+      label: "Logout",
+      href: "#",
+      icon: (
+        <LogOut className="h-8 w-8 shrink-0 text-black" />
+      ),
+    },
+  ];
   const [open, setOpen] = useState(false);
   return (
     <div
@@ -57,9 +61,6 @@ export default function Home() {
       <Sidebar open={open} setOpen={setOpen} animate={false}>
         <SidebarBody className="justify-between gap-10">
           <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto text-2xl font-bold">
-            <>
-              <Logo />
-            </>
             <div className="mt-8 flex flex-col gap-2">
               {links.map((link, idx) => (
                 <SidebarLink key={idx} link={link} />
@@ -69,16 +70,10 @@ export default function Home() {
           <div>
             <SidebarLink
               link={{
-                label: "Manu Arora",
+                label: "Store",
                 href: "/Profile",
                 icon: (
-                  <img
-                    src="https://assets.aceternity.com/manu.png"
-                    className="h-10 w-10 shrink-0 rounded-full"
-                    width={50}
-                    height={50}
-                    alt="Avatar"
-                  />
+                 <Store className="h-10 w-10"/>
                 ),
               }}
             />
@@ -124,7 +119,7 @@ const Dashboard = () => {
     <div className="flex flex-1 overflow-y-scroll">
       <div className="flex h-full w-full flex-1 flex-col gap-2 rounded-tl-2xl border border-neutral-200 bg-white p-2 md:p-5 dark:border-neutral-700 dark:bg-neutral-900">
         <div className="bg-gradient-to-r from-[#FF0080] to-[#FF8C00] rounded-sm p-5">
-          <h1 className="text-center text-4xl font-bold">
+          <h1 className="text-center text-3xl font-extrabold text-white">
             Wide Vareity Of Transformations
           </h1>
           <div className="flex flex-wrap justify-center gap-4 py-5">
@@ -258,7 +253,7 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-        <div className="bg-blue-300 rounded-md py-4">
+        <div className="bg-black shadow-xl rounded-md py-4">
           <h1 className="text-center text-2xl font-medium bg-gradient-to-r from-[#FF0080] to-[#FF8C00] bg-clip-text text-transparent">Use ClaudCanvas and break the boundaries of Creativity</h1>
         </div>
       </div>

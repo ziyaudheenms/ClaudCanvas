@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Sidebar,
   SidebarBody,
@@ -12,94 +12,44 @@ import {
   IconVideo,
   IconSlideshow,
 } from "@tabler/icons-react";
-import { Store } from "lucide-react";
-import { Loader } from 'lucide-react';
-import { Rotate3d } from 'lucide-react';
-import { Trash2 } from 'lucide-react';
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { Card } from "@/elements/Card";
 import { Banner } from "@/elements/Banner";
 import { FileUpload } from "@/elements/FileUpload";
+import { Button } from "@/components/ui/button";
 import { useUser } from "@clerk/nextjs";
 import axios from "axios";
-import { Button } from "@/components/ui/button"
-import { ImageDown } from 'lucide-react';
 import { LayoutDashboard } from "lucide-react";
 import { ImagePlus } from "lucide-react";
 import { TvMinimalPlay } from "lucide-react";
 import { LogOut } from "lucide-react";
 export default function Home() {
-  const { user, isLoaded } = useUser();
-  const [userData, setUserData] = useState(null);
   const [clickBtn, setClickBtn] = useState(false);
-    const links = [
-    {
-      label: "Dashboard",
-      href: "/",
-      icon: <LayoutDashboard className="h-8 w-8 shrink-0 text-black" />,
-    },
-    {
-      label: "Images",
-      href: "/Images",
-      icon: <ImagePlus className="h-8 w-8 shrink-0 text-black" />,
-    },
-    {
-      label: "Video",
-      href: "/Video",
-      icon: <TvMinimalPlay className="h-8 w-8 shrink-0 text-black" />,
-    },
-    {
-      label: "Logout",
-      href: "#",
-      icon: <LogOut className="h-8 w-8 shrink-0 text-black" />,
-    },
-  ];
+      const links = [
+      {
+        label: "Dashboard",
+        href: "/",
+        icon: <LayoutDashboard className="h-8 w-8 shrink-0 text-black" />,
+      },
+      {
+        label: "Images",
+        href: "/Images",
+        icon: <ImagePlus className="h-8 w-8 shrink-0 text-black" />,
+      },
+      {
+        label: "Video",
+        href: "/Video",
+        icon: <TvMinimalPlay className="h-8 w-8 shrink-0 text-black" />,
+      },
+      {
+        label: "Logout",
+        href: "#",
+        icon: <LogOut className="h-8 w-8 shrink-0 text-black" />,
+      },
+    ];
   const [open, setOpen] = useState(false);
   const [LoggedIn, setLoggedIn] = useState(false);
-  useEffect(() => {
-    const syncUser = async () => {
-      if (!user) return;
-
-      await fetch("http://localhost:8000/api/v1/auth/create/user/sync-user/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: user.emailAddresses[0].emailAddress,
-          username: user.username || user.id,
-        }),
-      });
-    };
-    if (!isLoaded || !user) return;
-    syncUser();
-    const verify = async () => {
-      try {
-        const response = await axios.post(
-          "http://localhost:8000/api/v1/media/Process/verify/",
-          {
-            username: user.username || user.id, // fallback if username is null
-          }
-        );
-
-        if (response.data.status_code === 5000) {
-          console.log(response);
-
-          console.log(
-            "Final verification passed" + response.data.message.username
-          );
-          setUserData(response.data.message.username);
-        } else {
-          console.log("Final verification failed", response);
-        }
-      } catch (err) {
-        console.error("Verification error:", err);
-      }
-    };
-
-    verify();
-  }, [isLoaded, user]);
 
   return (
     <div
@@ -112,6 +62,7 @@ export default function Home() {
       <Sidebar open={open} setOpen={setOpen} animate={false}>
         <SidebarBody className="justify-between gap-10">
           <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto text-2xl font-bold">
+            <></>
             <div className="mt-8 flex flex-col gap-2">
               {links.map((link, idx) => (
                 <SidebarLink key={idx} link={link} />
@@ -121,10 +72,16 @@ export default function Home() {
           <div>
             <SidebarLink
               link={{
-                label: "Store",
+                label: "Manu Arora",
                 href: "#",
                 icon: (
-                  <Store className="h-10 w-10"/>
+                  <img
+                    src="https://assets.aceternity.com/manu.png"
+                    className="h-10 w-10 shrink-0 rounded-full"
+                    width={50}
+                    height={50}
+                    alt="Avatar"
+                  />
                 ),
               }}
             />
@@ -141,7 +98,16 @@ export const Logo = () => {
     <a
       href="#"
       className="relative z-20 flex items-center space-x-2 py-1 text-sm font-normal text-black"
-    ></a>
+    >
+      <div className="h-5 w-6 shrink-0 rounded-tl-lg rounded-tr-sm rounded-br-lg rounded-bl-sm  dark:bg-white bg-gradient-to-r from-[#FF0080] to-[#FF8C00]" />
+      <motion.span
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="font-bold whitespace-pre  dark:text-white text-xl  bg-gradient-to-r from-[#FF0080] to-[#FF8C00] bg-clip-text text-transparent"
+      >
+        ClaudCanvas
+      </motion.span>
+    </a>
   );
 };
 export const LogoIcon = () => {
@@ -159,12 +125,13 @@ export const LogoIcon = () => {
 const Dashboard = () => {
   const [clickBtn, setClickBtn] = useState(false);
   const [title, setTitle] = useState("");
-  const [AscpectRatio, setAscpectRatio] = useState("");
+  const [prompt, setprompt] = useState("");
   const [LoadIcon, setLoadIcon] = useState(false);
   const [image, setImage] = useState(null);
-  const [finalImage, setfinalImage] = useState('https://www.bing.com/images/search?q=selon+musk&id=1EA95BEDBF9FCD49CA876402607CD534365A74DF');
+  const [finalImage, setfinalImage] = useState(
+    "https://www.bing.com/images/search?q=selon+musk&id=1EA95BEDBF9FCD49CA876402607CD534365A74DF"
+  );
   const { user, isLoaded } = useUser();
-
 
   const handleTransform = async (e) => {
     e.preventDefault();
@@ -176,12 +143,13 @@ const Dashboard = () => {
     const formData = new FormData();
     formData.append("title", title);
     formData.append("image", image);
+    formData.append("prompt", prompt);
     formData.append("username", user.username);
 
     try {
-      setLoadIcon(true)
+      setLoadIcon(true);
       const response = await axios.post(
-        "http://localhost:8000/api/v1/media/Process/Image/Upscale/",
+        "http://localhost:8000/api/v1/media/Process/Image/bgGenerativeChange/",
         formData,
         {
           headers: {
@@ -190,27 +158,32 @@ const Dashboard = () => {
         }
       );
       if (response.data.status_code === 5000) {
-        console.log("Image transformed successfully:", response.data.message);
-      }else{
+        console.log("Image transformed successfully:", response.data.data);
+      } else {
         console.log("Sorry,No credits balance:", response.data);
         alert("Sorry,No credits balance:");
-        
       }
-      
 
-      setfinalImage(response.data.data)
-      setLoadIcon(false)
+      setfinalImage(response.data.data);
+      setLoadIcon(false);
       setClickBtn(true);
     } catch (error) {
       console.error("Error transforming image:", error);
     }
   };
-
-  return (
+ 
+  if (!isLoaded) {
+      return (
+        <div className="w-full h-screen flex justify-center items-center bg-white">
+        <img src="/Processing.gif" alt="" />
+      </div>
+      )
+  } else {
+     return (
     <div className="flex flex-1 overflow-y-scroll">
       <div className="flex h-full w-full flex-1 flex-col gap-4 rounded-tl-2xl border border-neutral-200 bg-gradient-to-br p-6  dark:from-neutral-800 dark:to-neutral-900 dark:border-neutral-700">
-        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight  text-center">
-          Upscale Your Image to perfection
+        <h1 className="text-center text-3xl font-extrabold text-gray-800 dark:text-white">
+          Remove Your Desire In Seconds
         </h1>
         <p className="text-center text-gray-600 dark:text-gray-400">
           Upload your image and let us handle the magic!
@@ -218,24 +191,38 @@ const Dashboard = () => {
         <div>
           <form
             action=""
-            className="w-[90%] mx-auto my-5 border border-neutral-200 rounded-xl p-3 bg-white"
+            className="w-[90%] mx-auto my-5 shadow rounded-xl p-3"
           >
             <div>
-              <label htmlFor="title" className="scroll-m-20 text-xl font-semibold tracking-tight">
+              <label htmlFor="" className="text-2xl">
                 Title:
               </label>
               <br />
               <input
                 type="text"
                 id="title"
-                className="border-2 border-neutral-100 my-2 rounded-lg p-3 w-full scroll-m-20 text-[15px] font-semibold tracking-tight"
+                className="border-2 border-neutral-200 my-2 rounded-lg p-3 w-full scroll-m-20 text-[15px] font-semibold tracking-tight"
                 placeholder="Create A Title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
               />
             </div>
             <div>
-              <label htmlFor="image-upload" className="scroll-m-20 text-xl font-semibold tracking-tight my-2">
+              <label htmlFor="" className="text-2xl">
+                Background to be used:
+              </label>
+              <br />
+              <input
+                type="text"
+                id="title"
+                className="border-2 border-neutral-200 my-2 rounded-lg p-3 w-full scroll-m-20 text-[15px] font-semibold tracking-tight"
+                placeholder="Enter the  prompt you need"
+                value={prompt}
+                onChange={(e) => setprompt(e.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="" className="text-2xl">
                 Upload Your Image:
               </label>
               <br />
@@ -276,27 +263,21 @@ const Dashboard = () => {
                   />
                 </label>
               </div>
-              <div className="mt-4 flex justify-center">
-                <div
-                  className=""
-                  onClick={handleTransform}
-                >
-                  <Button>{LoadIcon ? (
-                    <motion.div
-                      animate={{ opacity: [0, 1, 0] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                      className="text-center text-white flex gap-2 items-center "
-                    >
-                      <Loader />
-                      Loading...
-                    </motion.div>
-                  ) : (
-                    <>
-                    <Rotate3d />
-                    Transform Image
-                    </>
-                  )}</Button>
-
+              <div className="mt-4 flex justify-center" onClick={handleTransform}>
+                <div className="">
+                  <Button>
+                    {LoadIcon ? (
+                      <motion.div
+                        animate={{ opacity: [0, 1, 0] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                        className="text-center text-white "
+                      >
+                        Loading...
+                      </motion.div>
+                    ) : (
+                      "Transform Image"
+                    )}
+                  </Button>
                 </div>
               </div>
             </div>
@@ -305,9 +286,9 @@ const Dashboard = () => {
         {clickBtn ? (
           <div>
             <h1 className="text-center font-bold">View Your Images</h1>
-            <div className="w-full flex flex-col justify-center gap-3 flex-wrap  py-5">
-              <div className="bg-neutral-300 w-fit shadow flex justify-center items-center flex-col gap-4 rounded-lg h-fit mx-auto">
-                {image ? (
+            <div className="w-full flex gap-3 flex-wrap justify-center py-5">
+              <div className="bg-neutral-300 w-96 shadow flex justify-center items-center flex-col gap-4 rounded-lg h-96">
+               {image ? (
                   <img
                     src={URL.createObjectURL(image)}
                     alt="Uploaded"
@@ -317,7 +298,7 @@ const Dashboard = () => {
                   <p>No image uploaded</p>
                 )}
               </div>
-              <div className="bg-neutral-300 w-fit shadow flex justify-center items-center flex-col gap-4 rounded-lg h-fit mx-auto">
+              <div className="bg-neutral-300 w-96 shadow flex justify-center items-center flex-col gap-4 rounded-lg h-96">
                 {finalImage ? (
                   <img
                     src={finalImage}
@@ -329,31 +310,29 @@ const Dashboard = () => {
                 )}
               </div>
             </div>
-            <div className="mt-6 flex justify-center gap-4 py-4 flex-wrap">
-              <Button
-                className="px-6 py-3 text-white transition-all duration-300"
-                onClick={() => alert("Image deleted!")}
-              >
-                <Trash2 />
-                Delete Image
-              </Button>
-              <Button
-                className="px-6 py-3 text-white bg-[#1d4ed8]  rounded-lg shadow-md focus:outline-none focus:ring-2  transition-all duration-300"
-                onClick={() => {
-                  if (finalImage) {
-                    const link = document.createElement("a");
-                    link.href = finalImage;
-                    link.download = "transformed-image.png";
-                    link.click();
-                  } else {
-                    alert("No image available to download!");
-                  }
-                }}
-              >
-                <ImageDown />
-                Download Image
-              </Button>
-            </div>
+             <div className="mt-6 flex justify-center gap-4 py-4 flex-wrap">
+                          <Button
+                            className="px-6 py-3 text-white transition-all duration-300"
+                            onClick={() => alert("Image deleted!")}
+                          >
+                            Delete Image
+                          </Button>
+                          <Button
+                            className="px-6 py-3 text-white bg-[#1d4ed8]  rounded-lg shadow-md focus:outline-none focus:ring-2  transition-all duration-300"
+                            onClick={() => {
+                              if (finalImage) {
+                                const link = document.createElement("a");
+                                link.href = finalImage;
+                                link.download = "transformed-image.png";
+                                link.click();
+                              } else {
+                                alert("No image available to download!");
+                              }
+                            }}
+                          >
+                            Download Image
+                          </Button>
+                        </div>
           </div>
         ) : (
           <div></div>
@@ -361,6 +340,9 @@ const Dashboard = () => {
       </div>
     </div>
   );
+  }
+
+ 
 };
 const ImageCard = ({ imageUrl, title, size, date }) => {
   return (

@@ -1,6 +1,10 @@
 "use client";
 import React, { useState } from "react";
-import { Sidebar, SidebarBody, SidebarLink } from "../../../components/ui/sidebar";
+import {
+  Sidebar,
+  SidebarBody,
+  SidebarLink,
+} from "../../../components/ui/sidebar";
 import {
   IconArrowLeft,
   IconBrandTabler,
@@ -9,46 +13,48 @@ import {
   IconSlideshow,
 } from "@tabler/icons-react";
 import { motion } from "motion/react";
+import { Trash2 } from 'lucide-react';
+import { ImageDown } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Card } from "@/elements/Card";
 import { Banner } from "@/elements/Banner";
 import { FileUpload } from "@/elements/FileUpload";
-
+import { Loader } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Rotate3d } from "lucide-react";
+import axios from "axios";
+import { useUser } from "@clerk/nextjs";
+import { LayoutDashboard } from "lucide-react";
+import { ImagePlus } from "lucide-react";
+import { TvMinimalPlay } from "lucide-react";
+import { LogOut } from "lucide-react";
 export default function Home() {
   const [clickBtn, setClickBtn] = useState(false);
-  const links = [
-    {
-      label: "Dashboard",
-      href: "/",
-      icon: (
-        <IconBrandTabler className="h-8 w-8 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
-    },
-    {
-      label: "Images",
-      href: "/Images",
-      icon: (
-        <IconSlideshow className="h-8 w-8 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
-    },
-    {
-      label: "Video",
-      href: "/Video",
-      icon: (
-        <IconVideo className="h-8 w-8 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
-    },
-    {
-      label: "Logout",
-      href: "#",
-      icon: (
-        <IconArrowLeft className="h-8 w-8 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
-    },
-  ];
+   const links = [
+      {
+        label: "Dashboard",
+        href: "/",
+        icon: <LayoutDashboard className="h-8 w-8 shrink-0 text-black" />,
+      },
+      {
+        label: "Images",
+        href: "/Images",
+        icon: <ImagePlus className="h-8 w-8 shrink-0 text-black" />,
+      },
+      {
+        label: "Video",
+        href: "/Video",
+        icon: <TvMinimalPlay className="h-8 w-8 shrink-0 text-black" />,
+      },
+      {
+        label: "Logout",
+        href: "#",
+        icon: <LogOut className="h-8 w-8 shrink-0 text-black" />,
+      },
+    ];
   const [open, setOpen] = useState(false);
   const [LoggedIn, setLoggedIn] = useState(false);
-  
+
   return (
     <div
       className={cn(
@@ -61,7 +67,7 @@ export default function Home() {
         <SidebarBody className="justify-between gap-10">
           <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto text-2xl font-bold">
             <>
-              <Logo />
+     
             </>
             <div className="mt-8 flex flex-col gap-2">
               {links.map((link, idx) => (
@@ -124,117 +130,231 @@ export const LogoIcon = () => {
 // Dummy dashboard component with content
 const Dashboard = () => {
   const [clickBtn, setClickBtn] = useState(false);
+  const [LoadIcon, setLoadIcon] = useState(false);
+  const [title, setTitle] = useState("");
+  const [ItemRecolor, setItemRecolor] = useState("");
+  const [image, setImage] = useState(null);
+  const [Color, setColor] = useState("");
+  const [finalImage, setfinalImage] = useState(
+    "https://www.bing.com/images/search?q=selon+musk&id=1EA95BEDBF9FCD49CA876402607CD534365A74DF"
+  );
+  const { user, isLoaded } = useUser();
+
+  const handleTransform = async (e) => {
+    e.preventDefault();
+    if (!title || !image) {
+      alert("Please provide both title and image.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("image", image);
+    formData.append("itemToRemove", ItemRecolor);
+    formData.append("username", user.username);
+
+    try {
+      setLoadIcon(true);
+      const response = await axios.post(
+        "http://localhost:8000/api/v1/media/Process/Image/GenerativeRemove/",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      if (response.data.status_code === 5000) {
+        console.log("Image transformed successfully:", response.data.data);
+      } else {
+        console.log("Sorry,No credits balance:", response.data);
+        alert("Sorry,No credits balance:");
+      }
+
+      setfinalImage(response.data.data);
+      setLoadIcon(false);
+      setClickBtn(true);
+    } catch (error) {
+      console.error("Error transforming image:", error);
+    }
+  };
   return (
-  <div className="flex flex-1 overflow-y-scroll">
-    <div className="flex h-full w-full flex-1 flex-col gap-4 rounded-tl-2xl border border-neutral-200 bg-gradient-to-br p-6  dark:from-neutral-800 dark:to-neutral-900 dark:border-neutral-700">
-      <h1 className="text-center text-3xl font-extrabold text-gray-800 dark:text-white">
-        Remove Your Desire In Seconds
-      </h1>
-      <p className="text-center text-gray-600 dark:text-gray-400">
-        Upload your image and let us handle the magic!
-      </p>
-      <div>
-        <form action="" className="w-[90%] mx-auto my-5 shadow rounded-xl p-3">
-          <div>
-            <label htmlFor="" className="text-2xl">Title:</label>
-            <br />
-            <input type="text" name="" id="" className="border-2 border-neutral-200 my-2 rounded-lg p-3 w-full" placeholder="Create A Title"/>
-          </div>
-          <div>
-            <label htmlFor="" className="text-2xl">Item to Remove:</label>
-            <br />
-            <input type="text" name="" id="" className="border-2 border-neutral-200 my-2 rounded-lg p-3 w-full" placeholder="enter what you want to remove"/>
-          </div>
-          <div>
-            <label htmlFor="" className="text-2xl">Upload Your Image:</label>
-            <br />
-            <div className="flex items-center justify-center w-full">
-              <label
-                htmlFor="image-upload"
-                className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-neutral-700 dark:border-neutral-600 hover:bg-gray-100 dark:hover:bg-neutral-600"
-              >
-                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <svg
-                    aria-hidden="true"
-                    className="w-8 h-8 mb-3 text-gray-400 dark:text-gray-300"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M7 16l-4-4m0 0l4-4m-4 4h16m-5 4l4-4m0 0l-4-4"
-                    ></path>
-                  </svg>
-                  <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                    <span className="font-semibold">Click to upload</span> or drag and drop
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    PNG, JPG, or GIF (MAX. 5MB)
-                  </p>
-                </div>
-                <input id="image-upload" type="file" className="hidden" />
+    <div className="flex flex-1 overflow-y-scroll bg-white">
+      <div className="flex h-full w-full flex-1 flex-col gap-4 rounded-tl-2xl   bg-gradient-to-br p-6">
+        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight  text-center">
+          Recolor Everything You Want In Seconds
+        </h1>
+        <p className="text-center text-gray-600 dark:text-gray-400">
+          Upload your image and let us handle the magic!
+        </p>
+        <div>
+          <form
+            action=""
+            className="w-[90%] mx-auto my-5 shadow rounded-xl p-3"
+          >
+            <div>
+              <label htmlFor="" className="scroll-m-20 text-xl font-semibold tracking-tight">
+                Title:
               </label>
+              <br />
+              <input
+                type="text"
+                name=""
+                id=""
+                className="border-2 border-neutral-200 my-2 rounded-lg p-3 w-full"
+                placeholder="Create A Title"
+                value={title}
+                onChange={(e) => {setTitle(e.target.value)}}
+              />
             </div>
-            <div className="mt-4 flex justify-center">
-              <button
-                className="px-6 py-3 text-white bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg shadow-md hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-all duration-300"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setClickBtn(true);
+            <div>
+              <label htmlFor="" className="scroll-m-20 text-xl font-semibold tracking-tight">
+                Item to Remove:
+              </label>
+              <br />
+              <input
+                type="text"
+                name=""
+                id=""
+                className="border-2 border-neutral-200 my-2 rounded-lg p-3 w-full"
+                placeholder="select the item to remove"
+                value={ItemRecolor}
+                onChange={(e) => {setItemRecolor(e.target.value)}}
+              />
+            </div>
+            <div>
+              <label htmlFor="" className="scroll-m-20 text-xl font-semibold tracking-tight">
+                Upload Your Image:
+              </label>
+              <br />
+              <div className="flex items-center justify-center w-full">
+                <label
+                  htmlFor="image-upload"
+                  className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-neutral-700 dark:border-neutral-600 hover:bg-gray-100 dark:hover:bg-neutral-600"
+                >
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <svg
+                      aria-hidden="true"
+                      className="w-8 h-8 mb-3 text-gray-400 dark:text-gray-300"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M7 16l-4-4m0 0l4-4m-4 4h16m-5 4l4-4m0 0l-4-4"
+                      ></path>
+                    </svg>
+                    <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                      <span className="font-semibold">Click to upload</span> or
+                      drag and drop
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      PNG, JPG, or GIF (MAX. 5MB)
+                    </p>
+                  </div>
+                   <input
+                    id="image-upload"
+                    type="file"
+                    className="hidden"
+                    onChange={(e) => setImage(e.target.files[0])}
+                  />
+                </label>
+              </div>
+              <div className="mt-4 flex justify-center">
+                <div className="" onClick={handleTransform}>
+                  <Button>
+                    {LoadIcon ? (
+                      <motion.div
+                        animate={{ opacity: [0, 1, 0] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                        className="text-center text-white flex gap-2 items-center "
+                      >
+                        <Loader />
+                        Loading...
+                      </motion.div>
+                    ) : (
+                      <>
+                        <Rotate3d />
+                        Transform Image
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      
+        {clickBtn ? (
+          <div>
+            <h1 className="text-center font-bold">View Your Images</h1>
+            <div className="w-full flex flex-col justify-center gap-3 flex-wrap  py-5">
+              <div className="bg-neutral-300 w-fit shadow flex justify-center items-center flex-col gap-4 rounded-lg h-fit mx-auto">
+                {image ? (
+                  <img
+                    src={URL.createObjectURL(image)}
+                    alt="Uploaded"
+                    className="h-full w-full object-cover rounded-lg"
+                  />
+                ) : (
+                  <p>No image uploaded</p>
+                )}
+              </div>
+              <div className="bg-neutral-300 w-fit shadow flex justify-center items-center flex-col gap-4 rounded-lg h-fit mx-auto">
+                {finalImage ? (
+                  <img
+                    src={finalImage}
+                    alt="final"
+                    className="h-full w-full object-cover rounded-lg"
+                  />
+                ) : (
+                  <p>Image preview Loading</p>
+                )}
+              </div>
+            </div>
+            <div className="mt-6 flex justify-center gap-4 py-4 flex-wrap">
+              <Button
+                className="px-6 py-3 text-white transition-all duration-300"
+                onClick={() => alert("Image deleted!")}
+              >
+                <Trash2 />
+                Delete Image
+              </Button>
+              <Button
+                className="px-6 py-3 text-white bg-[#1d4ed8]  rounded-lg shadow-md focus:outline-none focus:ring-2  transition-all duration-300"
+                onClick={() => {
+                  if (finalImage) {
+                    const link = document.createElement("a");
+                    link.href = finalImage;
+                    link.download = "transformed-image.png";
+                    link.click();
+                  } else {
+                    alert("No image available to download!");
+                  }
                 }}
               >
-                Transform Image
-              </button>
+                <ImageDown />
+                Download Image
+              </Button>
             </div>
           </div>
-        </form>
+        ) : (
+          <div></div>
+        )}
       </div>
-      {
-          clickBtn ? (
-            <div>
-            <h1 className="text-center font-bold">View Your Images</h1>
-          <div className="w-full flex gap-3 flex-wrap justify-center py-5">
-            <div className="bg-neutral-300 w-96 shadow flex justify-center items-center flex-col gap-4 rounded-lg h-96">
-              Uploaded Image
-            </div>
-            <div className="bg-neutral-300 w-96 shadow flex justify-center items-center flex-col gap-4 rounded-lg h-96">
-              Transformed Image
-            </div>
-          </div>
-          <div className="mt-6 flex justify-center gap-4 py-4 flex-wrap">
-            <button
-              className="px-6 py-3 text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 rounded-lg shadow-md hover:from-red-500 hover:via-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 transition-all duration-300"
-              onClick={() => alert("Image deleted!")}
-            >
-              Delete Image
-            </button>
-            <button
-              className="px-6 py-3 text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 rounded-lg shadow-md hover:from-green-500 hover:via-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 transition-all duration-300"
-              onClick={() => alert("Image downloaded!")}
-            >
-              Download Image
-            </button>
-          </div>
-            </div>
-          ):(
-            <div></div>
-          )
-      }
-      
-      
     </div>
-  </div>
-);
-
-
+  );
 };
 const ImageCard = ({ imageUrl, title, size, date }) => {
   return (
-    <div className="h-80 w-64 rounded-md shadow-xl bg-cover bg-center flex flex-col justify-end p-4" style={{ backgroundImage: `url(${imageUrl})` }}>
+    <div
+      className="h-80 w-64 rounded-md shadow-xl bg-cover bg-center flex flex-col justify-end p-4"
+      style={{ backgroundImage: `url(${imageUrl})` }}
+    >
       <div className="text-black font-medium text-[15px] relative z-10 bg-white p-2 rounded-md inline-block">
         <div className="font-bold">{title}</div>
         <div className="flex flex-row justify-between text-xs mt-1">

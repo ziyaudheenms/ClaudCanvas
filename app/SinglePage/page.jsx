@@ -2,6 +2,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useUser } from "@clerk/nextjs";
+import { Button } from "@/components/ui/button";
+import { ImageDown } from "lucide-react";
+import { Trash2 } from "lucide-react";
+import { CreditCard } from 'lucide-react';
+import { saveAs } from 'file-saver';
 function page() {
   const { user, isLoaded } = useUser();
   const [Data, SetData] = useState([]);
@@ -40,44 +45,68 @@ function page() {
     
   } else {
     return (
-      <div className="font-sans p-5 bg-gradient-to-b from-gray-100 to-gray-300 text-gray-800 min-h-screen">
-        <h1 className="text-center text-3xl bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 text-transparent bg-clip-text font-extrabold mb-10">
-          🌟 Image Transformation Hub 🌟
+      <div className="font-sans p-5 bg-white text-gray-800 min-h-screen">
+        <h1 className="text-center scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
+           Image Transformation Hub 
         </h1>
-        <div className="flex justify-around mt-8 flex-wrap mx-auto gap-10">
+
+
+        <div className="flex flex-between justify-center mt-8 flex-wrap mx-auto gap-10">
+          <h3 className="scroll-m-20  pb-2 text-xl font-semibold tracking-tight first:mt-0">
+            Username: <span className="text-gray-600">{Data.user}</span>
+          </h3>
+          <h3 className="scroll-m-20  pb-2 text-xl font-semibold tracking-tight first:mt-0">
+         Title: <span className="text-gray-600">{Data.title}</span>
+          </h3>
+          <h3 className="scroll-m-20  pb-2 text-xl font-semibold tracking-tight first:mt-0">
+         Transformation: <span className="text-gray-600">{Data.process_type}</span>
+          </h3>
+        </div>
+        <div className="flex justify-center items-center mt-8 flex-wrap mx-auto gap-2">
           <div
-            className="text-center w-full sm:w-1/2 lg:w-2/5 flex justify-center items-center flex-col bg-white shadow-xl rounded-xl p-6 transform hover:scale-105 transition-transform duration-300"
-            style={{
-              boxShadow:
-                "0 4px 6px rgba(128, 90, 213, 0.3), 0 1px 3px rgba(236, 72, 153, 0.3)",
-            }}
+            className="text-center w-full sm:w-1/2 lg:w-2/5 flex justify-center items-center flex-col bg-white  rounded-xl p-6 "
           >
-            <h2 className="text-3xl font-bold text-gray-800 mb-5 border-b-4 border-pink-500 pb-3">
+            <h2 className="scroll-m-20 text-2xl font-semibold tracking-tight">
               Uploaded Image
             </h2>
             <img
               src={Load ? Data.image_file : "#"}
               alt="Uploaded"
-              className="border-4 border-gray-300 rounded-lg w-[90%] h-auto shadow-lg"
+              className="border-2 border-gray-200 rounded-lg w-[90%] h-auto shadow-md"
             />
           </div>
           <div
-            className="text-center w-full sm:w-1/2 lg:w-2/5 bg-white shadow-xl rounded-xl p-6 transform hover:scale-105 transition-transform duration-300"
-            style={{
-              boxShadow:
-                "0 4px 6px rgba(249, 115, 22, 0.3), 0 1px 3px rgba(234, 88, 12, 0.3)",
-            }}
+            className="text-center w-full sm:w-1/2 lg:w-2/5 bg-transparent   rounded-xl p-6 "
+            
           >
-            <h2 className="text-3xl font-bold text-gray-800 mb-5 border-b-4 border-orange-500 pb-3">
+            <h2 className="scroll-m-20 text-2xl font-semibold tracking-tight">
               Transformed Image
             </h2>
             <img
               src={Load ? Data?.processed_image.replace("http://localhost:8000/media/https%3A", "https:/") : "#"}
               alt="Transformed"
-              className="border-4 border-gray-300 rounded-lg w-full h-auto shadow-lg"
+              className="border-2 border-gray-200 rounded-lg w-[90%] h-auto shadow-md"
             />
           </div>
         </div>
+        <div className="mt-6 flex justify-center gap-4 py-4 flex-wrap">
+              <Button
+                className="px-6 py-3 text-white transition-all duration-300"
+                onClick={() => alert("Image deleted!")}
+              >
+                <Trash2 />
+                Delete Image
+              </Button>
+              <Button
+                className="px-6 py-3 text-white bg-[#1d4ed8]  rounded-lg shadow-md focus:outline-none focus:ring-2  transition-all duration-300"
+                onClick={() => {
+                  saveAs(Data.processed_image, "image.png");
+                }}
+              >
+                <ImageDown />
+                Download Image
+              </Button>
+            </div>
         <div
           className="mt-12 text-center bg-white shadow-xl rounded-xl p-6 w-[90%] mx-auto transform hover:scale-105 transition-transform duration-300"
           style={{
@@ -85,11 +114,9 @@ function page() {
               "0 4px 6px rgba(59, 130, 246, 0.3), 0 1px 3px rgba(37, 99, 235, 0.3)",
           }}
         >
-          <h3 className="text-xl font-semibold mb-3">
-            📌 Title: <span className="text-gray-600">{Data.title}</span>
-          </h3>
-          <h3 className="text-xl font-semibold">
-            💳 Credits Used: <span className="text-gray-600">2</span>
+          
+          <h3 className="scroll-m-20 gap-2 flex items-center justify-center  pb-2 text-xl font-semibold tracking-tight first:mt-0">
+            <CreditCard /> Credits Used: <span className="text-gray-600">2</span>
           </h3>
         </div>
       </div>

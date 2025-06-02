@@ -1,6 +1,10 @@
 "use client";
-import React, { useState } from "react";
-import { Sidebar, SidebarBody, SidebarLink } from "../../../components/ui/sidebar";
+import React, { useEffect, useState } from "react";
+import {
+  Sidebar,
+  SidebarBody,
+  SidebarLink,
+} from "../../../components/ui/sidebar";
 import {
   IconArrowLeft,
   IconBrandTabler,
@@ -8,47 +12,94 @@ import {
   IconVideo,
   IconSlideshow,
 } from "@tabler/icons-react";
+import { Loader } from 'lucide-react';
+import { Rotate3d } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { Card } from "@/elements/Card";
 import { Banner } from "@/elements/Banner";
 import { FileUpload } from "@/elements/FileUpload";
-
+import { useUser } from "@clerk/nextjs";
+import axios from "axios";
+import { Button } from "@/components/ui/button"
+import { ImageDown } from "lucide-react";
+import { LayoutDashboard } from "lucide-react";
+import { ImagePlus } from "lucide-react";
+import { TvMinimalPlay } from "lucide-react";
+import { LogOut } from "lucide-react";
 export default function Home() {
+  const { user, isLoaded } = useUser();
+  const [userData, setUserData] = useState(null);
   const [clickBtn, setClickBtn] = useState(false);
-  const links = [
+    const links = [
     {
       label: "Dashboard",
       href: "/",
-      icon: (
-        <IconBrandTabler className="h-8 w-8 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
+      icon: <LayoutDashboard className="h-8 w-8 shrink-0 text-black" />,
     },
     {
       label: "Images",
       href: "/Images",
-      icon: (
-        <IconSlideshow className="h-8 w-8 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
+      icon: <ImagePlus className="h-8 w-8 shrink-0 text-black" />,
     },
     {
       label: "Video",
       href: "/Video",
-      icon: (
-        <IconVideo className="h-8 w-8 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
+      icon: <TvMinimalPlay className="h-8 w-8 shrink-0 text-black" />,
     },
     {
       label: "Logout",
       href: "#",
-      icon: (
-        <IconArrowLeft className="h-8 w-8 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
+      icon: <LogOut className="h-8 w-8 shrink-0 text-black" />,
     },
   ];
   const [open, setOpen] = useState(false);
   const [LoggedIn, setLoggedIn] = useState(false);
-  
+  useEffect(() => {
+    const syncUser = async () => {
+      if (!user) return;
+
+      await fetch("http://localhost:8000/api/v1/auth/create/user/sync-user/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: user.emailAddresses[0].emailAddress,
+          username: user.username || user.id,
+        }),
+      });
+    };
+    if (!isLoaded || !user) return;
+    syncUser();
+    const verify = async () => {
+      try {
+        const response = await axios.post(
+          "http://localhost:8000/api/v1/media/Process/verify/",
+          {
+            username: user.username || user.id, // fallback if username is null
+          }
+        );
+
+        if (response.data.status_code === 5000) {
+          console.log(response);
+
+          console.log(
+            "Final verification passed" + response.data.message.username
+          );
+          setUserData(response.data.message.username);
+        } else {
+          console.log("Final verification failed", response);
+        }
+      } catch (err) {
+        console.error("Verification error:", err);
+      }
+    };
+
+    verify();
+  }, [isLoaded, user]);
+
   return (
     <div
       className={cn(
@@ -60,9 +111,6 @@ export default function Home() {
       <Sidebar open={open} setOpen={setOpen} animate={false}>
         <SidebarBody className="justify-between gap-10">
           <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto text-2xl font-bold">
-            <>
-              <Logo />
-            </>
             <div className="mt-8 flex flex-col gap-2">
               {links.map((link, idx) => (
                 <SidebarLink key={idx} link={link} />
@@ -72,7 +120,7 @@ export default function Home() {
           <div>
             <SidebarLink
               link={{
-                label: "Manu Arora",
+                label: user?.username,
                 href: "#",
                 icon: (
                   <img
@@ -98,16 +146,7 @@ export const Logo = () => {
     <a
       href="#"
       className="relative z-20 flex items-center space-x-2 py-1 text-sm font-normal text-black"
-    >
-      <div className="h-5 w-6 shrink-0 rounded-tl-lg rounded-tr-sm rounded-br-lg rounded-bl-sm  dark:bg-white bg-gradient-to-r from-[#FF0080] to-[#FF8C00]" />
-      <motion.span
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="font-bold whitespace-pre  dark:text-white text-xl  bg-gradient-to-r from-[#FF0080] to-[#FF8C00] bg-clip-text text-transparent"
-      >
-        ClaudCanvas
-      </motion.span>
-    </a>
+    ></a>
   );
 };
 export const LogoIcon = () => {
@@ -124,113 +163,268 @@ export const LogoIcon = () => {
 // Dummy dashboard component with content
 const Dashboard = () => {
   const [clickBtn, setClickBtn] = useState(false);
-  return (
-  <div className="flex flex-1 overflow-y-scroll">
-    <div className="flex h-full w-full flex-1 flex-col gap-4 rounded-tl-2xl border border-neutral-200 bg-gradient-to-br p-6  dark:from-neutral-800 dark:to-neutral-900 dark:border-neutral-700">
-      <h1 className="text-center text-3xl font-extrabold text-gray-800 dark:text-white">
-        Create Preview In Seconds
-      </h1>
-      <p className="text-center text-gray-600 dark:text-gray-400">
-        Upload your Video and let us handle the magic!
-      </p>
-      <div>
-        <form action="" className="w-[90%] mx-auto my-5 shadow rounded-xl p-3">
-          <div>
-            <label htmlFor="" className="text-2xl">Title:</label>
-            <br />
-            <input type="text" name="" id="" className="border-2 border-neutral-200 my-2 rounded-lg p-3 w-full" placeholder="Create A Title" required/>
-          </div>
+  const [title, setTitle] = useState("");
+  const [AscpectRatio, setAscpectRatio] = useState("");
+  const [Quality, setQuality] = useState("");
+  const [LoadIcon, setLoadIcon] = useState(false);
+  const [video, setvideo] = useState('');
+  const [finalvideo, setfinalvideo] = useState('https://www.bing.com/images/search?q=selon+musk&id=1EA95BEDBF9FCD49CA876402607CD534365A74DF');
+  const { user, isLoaded } = useUser();
+
+    const handleFileChange = (e) => {
+    setvideo(e.target.files[0]);
+  };
+
+
+
+  const handleTransform = async (e) => {
+    e.preventDefault();
+    if (!title || !video) {
+      alert("Please provide both title and image.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("video", video);
+    formData.append("ratio", AscpectRatio);
+    formData.append("quality", Quality);
+    formData.append("username", user.username);
+
+    try {
+      setLoadIcon(true)
+      const response = await axios.post(
+        "http://localhost:8000/api/v1/media/Process/OptimizeVideo/",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      if (response.data.status_code === 5000) {
+        console.log("Video transformed successfully:", response.data.message);
+      }else{
+        console.log("Sorry,No credits balance:", response.data);
+        alert("Sorry,No credits balance:");
         
-          <div>
-            <label htmlFor="" className="text-2xl">Upload Your Video:</label>
-            <br />
-            <div className="flex items-center justify-center w-full">
-              <label
-                htmlFor="image-upload"
-                className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-neutral-700 dark:border-neutral-600 hover:bg-gray-100 dark:hover:bg-neutral-600"
-              >
-                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <svg
-                    aria-hidden="true"
-                    className="w-8 h-8 mb-3 text-gray-400 dark:text-gray-300"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M7 16l-4-4m0 0l4-4m-4 4h16m-5 4l4-4m0 0l-4-4"
-                    ></path>
-                  </svg>
-                  <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                    <span className="font-semibold">Click to upload</span> or drag and drop
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                     (MAX. 5MB)
-                  </p>
-                </div>
-                <input id="image-upload" type="file" className="hidden" />
-              </label>
-            </div>
-            <div className="mt-4 flex justify-center">
-              <button
-                className="px-6 py-3 text-white bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg shadow-md hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-all duration-300"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setClickBtn(true);
-                }}
-              >
-                Transform Video
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
-      {
-          clickBtn ? (
-            <div>
-            <h1 className="text-center font-bold">View Your Videos</h1>
-          <div className="w-full flex gap-3 flex-wrap justify-center py-5">
-            <div className="bg-neutral-300 w-96 shadow flex justify-center items-center flex-col gap-4 rounded-lg h-96">
-              Uploaded Video
-            </div>
-            <div className="bg-neutral-300 w-96 shadow flex justify-center items-center flex-col gap-4 rounded-lg h-96">
-              Transformed Video
-            </div>
-          </div>
-          <div className="mt-6 flex justify-center gap-4 py-4 flex-wrap">
-            <button
-              className="px-6 py-3 text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 rounded-lg shadow-md hover:from-red-500 hover:via-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 transition-all duration-300"
-              onClick={() => alert("Image deleted!")}
-            >
-              Delete Video
-            </button>
-            <button
-              className="px-6 py-3 text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 rounded-lg shadow-md hover:from-green-500 hover:via-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 transition-all duration-300"
-              onClick={() => alert("Image downloaded!")}
-            >
-              Download Video
-            </button>
-          </div>
-            </div>
-          ):(
-            <div></div>
-          )
       }
       
-      
+
+      setfinalvideo(response.data.data)
+      setLoadIcon(false)
+      setClickBtn(true);
+    } catch (error) {
+      console.error("Error transforming video:", error);
+    }
+  };
+
+  return (
+    <div className="flex flex-1 overflow-y-scroll">
+      <div className="flex h-full w-full flex-1 flex-col gap-4 rounded-tl-2xl border border-neutral-200 bg-gradient-to-br p-6  dark:from-neutral-800 dark:to-neutral-900 dark:border-neutral-700">
+        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight  text-center">
+          Optimize Your Video
+        </h1>
+        <p className="text-center text-gray-600 dark:text-gray-400">
+          Upload your Video and let us handle the magic!
+        </p>
+        <div>
+          <form
+            action=""
+            className="w-[90%] mx-auto my-5 border border-neutral-200 rounded-xl p-3 bg-white"
+          >
+            <div>
+              <label htmlFor="title" className="scroll-m-20 text-xl font-semibold tracking-tight">
+                Title:
+              </label>
+              <br />
+              <input
+                type="text"
+                id="title"
+                className="border-2 border-neutral-100 my-2 rounded-lg p-3 w-full scroll-m-20 text-[15px] font-semibold tracking-tight"
+                placeholder="Create A Title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="title" className="scroll-m-20 text-xl font-semibold tracking-tight">
+               Quality of the video: <span className="text-[14px]">(In the given order)</span>
+              </label>
+              <br />
+              <select
+                type="text"
+                id="title"
+                className="border-2 border-neutral-100 my-2 rounded-lg p-3 w-full scroll-m-20 text-[15px] font-semibold tracking-tight"
+                placeholder="Create A Title"
+                value={Quality}
+                onChange={(e) => setQuality(e.target.value)}
+              >
+                <option value="500:500">---</option>
+                <option value="auto">Auto</option>
+                <option value="auto:best">Best</option>
+                <option value="35">35%</option>
+              </select>
+            </div>
+             <div>
+              <label htmlFor="title" className="scroll-m-20 text-xl font-semibold tracking-tight">
+               Width you want <span className="text-[14px]">(In the given order)</span>
+              </label>
+              <br />
+              <select
+                type="text"
+                id="title"
+                className="border-2 border-neutral-100 my-2 rounded-lg p-3 w-full scroll-m-20 text-[15px] font-semibold tracking-tight"
+                placeholder="Create A Title"
+                value={AscpectRatio}
+                onChange={(e) => setAscpectRatio(e.target.value)}
+              >
+                <option value="500:500">---</option>
+                <option value="1000">1000px</option>
+                <option value="500">500px</option>
+                <option value="250">250px</option>
+              </select>
+            </div>
+            <div>
+          <label htmlFor="video-upload" className="text-2xl">
+          Upload Your Video:
+          </label>
+          <br />
+          <div className="flex items-center justify-center w-full">
+          <label
+            htmlFor="video-upload"
+            className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-neutral-700 dark:border-neutral-600 hover:bg-gray-100 dark:hover:bg-neutral-600"
+          >
+            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+            <svg
+              aria-hidden="true"
+              className="w-8 h-8 mb-3 text-gray-400 dark:text-gray-300"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M7 16l-4-4m0 0l4-4m-4 4h16m-5 4l4-4m0 0l-4-4"
+              ></path>
+            </svg>
+            <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+              <span className="font-semibold">Click to upload</span> or
+              drag and drop
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              (MAX. 10MB)
+            </p>
+            </div>
+            <input
+            id="video-upload"
+            type="file"
+            accept="video/*"
+            className="hidden"
+            onChange={(e) => {
+              setvideo(e.target.files[0])
+            }}
+            required
+            />
+          </label>
+          </div>
+          <div className="mt-4 flex justify-center">
+         <div
+                           className=""
+                           onClick={handleTransform}
+                         >
+                           <Button>{LoadIcon ? (
+                             <motion.div
+                               animate={{ opacity: [0, 1, 0] }}
+                               transition={{ duration: 1.5, repeat: Infinity }}
+                               className="text-center text-white flex gap-2 items-center "
+                             >
+                               <Loader />
+                               Loading...
+                             </motion.div>
+                           ) : (
+                             <>
+                             <Rotate3d />
+                             Transform Video
+                             </>
+                           )}</Button>
+         
+                         </div>
+          </div>
+        </div>
+          </form>
+        </div>
+        {clickBtn ? (
+          <div>
+            <h1 className="text-center font-bold">View Your Images</h1>
+            <div className="w-full flex flex-col justify-center gap-3 flex-wrap  py-5">
+              <div className="bg-neutral-300 w-fit shadow flex justify-center items-center flex-col gap-4 rounded-lg h-fit mx-auto">
+                {video ? (
+                  <video
+                    src={URL.createObjectURL(video)}
+                    alt="Uploaded"
+                    className="h-full w-full object-cover rounded-lg"
+                    controls
+                  />
+                ) : (
+                  <p>No video uploaded</p>
+                )}
+              </div>
+              <div className="bg-neutral-300 w-fit shadow flex justify-center items-center flex-col gap-4 rounded-lg h-fit mx-auto">
+                {finalvideo ? (
+                  <video
+                    src={finalvideo}
+                    alt="Uploaded"
+                    className="h-full w-full object-cover rounded-lg"
+                    controls
+                  />
+                ) : (
+                  <p>Video preview Loading</p>
+                )}
+              </div>
+            </div>
+            <div className="mt-6 flex justify-center gap-4 py-4 flex-wrap">
+              <Button
+                className="px-6 py-3 text-white transition-all duration-300"
+                onClick={() => alert("Image deleted!")}
+              >
+                <Trash2 />
+                Delete video
+              </Button>
+              <Button
+                className="px-6 py-3 text-white bg-[#1d4ed8]  rounded-lg shadow-md focus:outline-none focus:ring-2  transition-all duration-300"
+                onClick={() => {
+                  if (finalImage) {
+                    const link = document.createElement("a");
+                    link.href = finalImage;
+                    link.download = "transformed-image.png";
+                    link.click();
+                  } else {
+                    alert("No image available to download!");
+                  }
+                }}
+              >
+                <ImageDown />
+                Download video
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div></div>
+        )}
+      </div>
     </div>
-  </div>
-);
-
-
+  );
 };
 const ImageCard = ({ imageUrl, title, size, date }) => {
   return (
-    <div className="h-80 w-64 rounded-md shadow-xl bg-cover bg-center flex flex-col justify-end p-4" style={{ backgroundImage: `url(${imageUrl})` }}>
+    <div
+      className="h-80 w-64 rounded-md shadow-xl bg-cover bg-center flex flex-col justify-end p-4"
+      style={{ backgroundImage: `url(${imageUrl})` }}
+    >
       <div className="text-black font-medium text-[15px] relative z-10 bg-white p-2 rounded-md inline-block">
         <div className="font-bold">{title}</div>
         <div className="flex flex-row justify-between text-xs mt-1">

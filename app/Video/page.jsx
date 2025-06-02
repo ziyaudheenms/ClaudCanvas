@@ -16,38 +16,37 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { useUser } from "@clerk/nextjs";
+import { LayoutDashboard } from "lucide-react";
+import { ImagePlus } from "lucide-react";
+import { TvMinimalPlay } from "lucide-react";  
+import { LogOut } from "lucide-react";
+import { Store } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Upload } from "lucide-react";
 export default function Home() {
   const {user ,isLoaded} = useUser()
   const links = [
-      {
-        label: "Dashboard",
-        href: "/",
-        icon: (
-          <IconBrandTabler className="h-8 w-8 shrink-0 text-neutral-700 dark:text-neutral-200" />
-        ),
-      },
-      {
-        label: "Images",
-        href: "/Images",
-        icon: (
-          <IconSlideshow className="h-8 w-8 shrink-0 text-neutral-700 dark:text-neutral-200" />
-        ),
-      },
-      {
-        label: "Video",
-        href: "/Video",
-        icon: (
-          <IconVideo className="h-8 w-8 shrink-0 text-neutral-700 dark:text-neutral-200" />
-        ),
-      },
-      {
-        label: "Logout",
-        href: "#",
-        icon: (
-          <IconArrowLeft className="h-8 w-8 shrink-0 text-neutral-700 dark:text-neutral-200" />
-        ),
-      },
-    ];
+    {
+      label: "Dashboard",
+      href: "/",
+      icon: <LayoutDashboard className="h-8 w-8 shrink-0 text-black" />,
+    },
+    {
+      label: "Images",
+      href: "/Images",
+      icon: <ImagePlus className="h-8 w-8 shrink-0 text-black" />,
+    },
+    {
+      label: "Video",
+      href: "/Video",
+      icon: <TvMinimalPlay className="h-8 w-8 shrink-0 text-black" />,
+    },
+    {
+      label: "Logout",
+      href: "#",
+      icon: <LogOut className="h-8 w-8 shrink-0 text-black" />,
+    },
+  ];
   const [open, setOpen] = useState(false);
   return (
     <div
@@ -75,13 +74,7 @@ export default function Home() {
                 label: user?.username,
                 href: user?.imageUrl,
                 icon: (
-                  <img
-                    src="https://assets.aceternity.com/manu.png"
-                    className="h-10 w-10 shrink-0 rounded-full"
-                    width={50}
-                    height={50}
-                    alt="Avatar"
-                  />
+                 <Store className="h-10 w-10" />
                 ),
               }}
             />
@@ -195,10 +188,14 @@ const Dashboard = () => {
             </div>
           </div>
           <div className="flex justify-between items-center mt-6">
-            <h1 className="text-2xl font-bold">Recent Works</h1>
-            <button className="px-5 py-2 rounded-lg border border-black bg-gradient-to-r from-[#FF0080] to-[#FF8C00] text-white text-sm font-semibold hover:shadow-lg transition duration-200">
-              Upload
-            </button>
+            <h1 className="md:ml-2 leading-7 [&:not(:first-child)]:mt-6">Recent Works</h1>
+           <Link href={"/Video/OptimizeVideo"}>
+              <Button>
+                {" "}
+                <Upload />
+                Upload
+              </Button>
+            </Link>
           </div>
           <div className="py-3 flex flex-wrap gap-4 lg:gap-2 justify-center ">
             {
@@ -217,7 +214,7 @@ const Dashboard = () => {
                     className="w-64 h-48 lg:w-44 md:w-96 xl:w-64"
                   />
                 </div>
-                <div className="text-center text-lg font-medium mt-2 bg-gradient-to-r from-[#FF0080] to-[#FF8C00] text-white rounded-md py-1">
+                <div className="text-center mt-2 bg-gradient-to-r from-[#FF0080] to-[#FF8C00] text-white rounded-md py-1 md:ml-2 leading-7 [&:not(:first-child)]:mt-6">
                {item.title}
                 </div>
               </div>
