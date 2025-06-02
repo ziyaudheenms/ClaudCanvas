@@ -4,7 +4,7 @@ import {
   Sidebar,
   SidebarBody,
   SidebarLink,
-} from "../../../components/ui/sidebar";
+} from "../../../../components/ui/sidebar";
 import {
   IconArrowLeft,
   IconBrandTabler,
