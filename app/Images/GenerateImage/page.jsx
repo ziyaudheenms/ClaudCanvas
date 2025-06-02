@@ -13,7 +13,7 @@ import {
   IconSlideshow,
 } from "@tabler/icons-react";
 import { motion } from "motion/react";
-import { Trash2 } from 'lucide-react';
+import { Drama, Trash2 } from 'lucide-react';
 import { ImageDown } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Card } from "@/elements/Card";
@@ -27,6 +27,7 @@ import { useUser } from "@clerk/nextjs";
 import { LayoutDashboard } from "lucide-react";
 import { ImagePlus } from "lucide-react";
 import { TvMinimalPlay } from "lucide-react";
+import { Drama } from "lucide-react";
 import { LogOut } from "lucide-react";
 export default function Home() {
   const [clickBtn, setClickBtn] = useState(false);
@@ -45,6 +46,11 @@ export default function Home() {
       label: "Video",
       href: "/Video",
       icon: <TvMinimalPlay className="h-8 w-8 shrink-0 text-black" />,
+    },
+    {
+      label: "Generate Image",
+      href: "/Images/GenerateImage",
+      icon: <Drama className="h-8 w-8 shrink-0 text-black" />,
     },
     {
       label: "Logout",

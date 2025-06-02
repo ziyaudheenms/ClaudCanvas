@@ -18,35 +18,33 @@ import { ImagePlus } from "lucide-react";
 import { TvMinimalPlay } from "lucide-react";
 import { LogOut } from "lucide-react";
 import { Store } from "lucide-react";
+import { Drama } from "lucide-react";
 export default function Home() {
-   const links = [
+  const links = [
     {
       label: "Dashboard",
       href: "/",
-      icon: (
-        <LayoutDashboard className="h-8 w-8 shrink-0 text-black" />
-      ),
+      icon: <LayoutDashboard className="h-8 w-8 shrink-0 text-black" />,
     },
     {
       label: "Images",
       href: "/Images",
-      icon: (
-        <ImagePlus className="h-8 w-8 shrink-0 text-black" />
-      ),
+      icon: <ImagePlus className="h-8 w-8 shrink-0 text-black" />,
     },
     {
       label: "Video",
       href: "/Video",
-      icon: (
-        <TvMinimalPlay className="h-8 w-8 shrink-0 text-black" />
-      ),
+      icon: <TvMinimalPlay className="h-8 w-8 shrink-0 text-black" />,
+    },
+    {
+      label: "Generate Image",
+      href: "/Images/GenerateImage",
+      icon: <Drama className="h-8 w-8 shrink-0 text-black" />,
     },
     {
       label: "Logout",
       href: "#",
-      icon: (
-        <LogOut className="h-8 w-8 shrink-0 text-black" />
-      ),
+      icon: <LogOut className="h-8 w-8 shrink-0 text-black" />,
     },
   ];
   const [open, setOpen] = useState(false);
