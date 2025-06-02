@@ -122,7 +122,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = () => {
       if(isLoaded) {
-        axios.post("http://localhost:8000/api/v1/media/view/myVideos/" , {
+        axios.post("https://claudcanvas-backend.onrender.com/api/v1/media/view/myVideos/" , {
           username : user?.username
         }).then((res) => {
           console.log(res.data);

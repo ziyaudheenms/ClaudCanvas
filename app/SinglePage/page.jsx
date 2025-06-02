@@ -15,7 +15,7 @@ function page() {
    const DeleteImage = () => {
         if (user) {
             axios
-        .post(`http://localhost:8000/api/v1/media/Process/Image/delete/${Id}/`, {
+        .post(`https://claudcanvas-backend.onrender.com/api/v1/media/Process/Image/delete/${Id}/`, {
           username: user.username,
         })
         .then((response) => {
@@ -39,7 +39,7 @@ function page() {
     const CollectData = () => {
         if (user) {
             axios
-        .post(`http://localhost:8000/api/v1/media/view/myImages/${Id}/`, {
+        .post(`https://claudcanvas-backend.onrender.com/api/v1/media/view/myImages/${Id}/`, {
           username: user.username,
         })
         .then((response) => {
@@ -106,7 +106,7 @@ function page() {
               Transformed Image
             </h2>
             <img
-              src={Load ? Data?.processed_image.replace("http://localhost:8000/media/https%3A", "https:/") : "#"}
+              src={Load ? Data?.processed_image.replace("https://claudcanvas-backend.onrender.com/media/https%3A", "https:/") : "#"}
               alt="Transformed"
               className="border-2 border-gray-200 rounded-lg w-[90%] h-auto shadow-md"
             />

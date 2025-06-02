@@ -13,7 +13,7 @@ import {
   IconSlideshow,
 } from "@tabler/icons-react";
 import { motion } from "motion/react";
-import { Trash2 } from 'lucide-react';
+import { Store, Trash2 } from 'lucide-react';
 import { ImageDown } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Card } from "@/elements/Card";
@@ -78,16 +78,10 @@ export default function Home() {
           <div>
             <SidebarLink
               link={{
-                label: "Manu Arora",
+                label: "Store",
                 href: "#",
                 icon: (
-                  <img
-                    src="https://assets.aceternity.com/manu.png"
-                    className="h-10 w-10 shrink-0 rounded-full"
-                    width={50}
-                    height={50}
-                    alt="Avatar"
-                  />
+                 <Store className="h-10 w-10"/>
                 ),
               }}
             />
@@ -157,7 +151,7 @@ const Dashboard = () => {
     try {
       setLoadIcon(true);
       const response = await axios.post(
-        "http://localhost:8000/api/v1/media/Process/Image/GenerativeRecolor/",
+        "https://claudcanvas-backend.onrender.com/api/v1/media/Process/Image/GenerativeRecolor/",
         formData,
         {
           headers: {

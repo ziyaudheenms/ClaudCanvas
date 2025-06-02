@@ -158,7 +158,7 @@ const Dashboard = () => {
 
       try {
         const response = await axios.post(
-          "http://localhost:8000/api/v1/media/Process/MakePreview/",
+          "https://claudcanvas-backend.onrender.com/api/v1/media/Process/MakePreview/",
           data,
           {
             headers: {

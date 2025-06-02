@@ -12,7 +12,7 @@ import {
   IconVideo,
   IconSlideshow,
 } from "@tabler/icons-react";
-import { Loader } from 'lucide-react';
+import { Loader, Store } from 'lucide-react';
 import { Rotate3d } from 'lucide-react';
 import { Trash2 } from 'lucide-react';
 import { motion } from "motion/react";
@@ -61,7 +61,7 @@ export default function Home() {
     const syncUser = async () => {
       if (!user) return;
 
-      await fetch("http://localhost:8000/api/v1/auth/create/user/sync-user/", {
+      await fetch("https://claudcanvas-backend.onrender.com/api/v1/auth/create/user/sync-user/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -77,7 +77,7 @@ export default function Home() {
     const verify = async () => {
       try {
         const response = await axios.post(
-          "http://localhost:8000/api/v1/media/Process/verify/",
+          "https://claudcanvas-backend.onrender.com/api/v1/media/Process/verify/",
           {
             username: user.username || user.id, // fallback if username is null
           }
@@ -121,16 +121,10 @@ export default function Home() {
           <div>
             <SidebarLink
               link={{
-                label: user?.username,
+                label: 'Store',
                 href: "#",
                 icon: (
-                  <img
-                    src="https://assets.aceternity.com/manu.png"
-                    className="h-10 w-10 shrink-0 rounded-full"
-                    width={50}
-                    height={50}
-                    alt="Avatar"
-                  />
+                 <Store className="h-10 w-10" />
                 ),
               }}
             />
@@ -190,7 +184,7 @@ const Dashboard = () => {
     try {
       setLoadIcon(true)
       const response = await axios.post(
-        "http://localhost:8000/api/v1/media/Process/Image/OptimizeImage/",
+        "https://claudcanvas-backend.onrender.com/api/v1/media/Process/Image/OptimizeImage/",
         formData,
         {
           headers: {

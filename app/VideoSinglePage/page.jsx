@@ -18,7 +18,7 @@ function page() {
   const DeleteVideo = () => {
       if (user) {
         axios
-          .post(`http://localhost:8000/api/v1/media/Process/Video/delete/${Id}/`, {
+          .post(`https://claudcanvas-backend.onrender.com/api/v1/media/Process/Video/delete/${Id}/`, {
             username: user.username,
           })
           .then((response) => {
@@ -38,7 +38,7 @@ function page() {
     const CollectData = () => {
       if (user) {
         axios
-          .post(`http://localhost:8000/api/v1/media/view/myVideo/${Id}/`, {
+          .post(`https://claudcanvas-backend.onrender.com/api/v1/media/view/myVideo/${Id}/`, {
             username: user.username,
           })
           .then((response) => {
