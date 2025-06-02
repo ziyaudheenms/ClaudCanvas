@@ -9,29 +9,13 @@ import { Trash2 } from "lucide-react";
 import { CreditCard } from 'lucide-react';
 import { saveAs } from 'file-saver';
 function page() {
-    const Id = localStorage.getItem("Video_ID");
   const { user, isLoaded } = useUser();
   const [Data, SetData] = useState([]);
   const [Load, setLoad] = useState(false);
+  const [isShouldDelete, setisShouldDelete] = useState(false);
   const router = useRouter()
 
-  const DeleteVideo = () => {
-      if (user) {
-        axios
-          .post(`https://claudcanvas-backend.onrender.com/api/v1/media/Process/Video/delete/${Id}/`, {
-            username: user.username,
-          })
-          .then((response) => {
-            console.log(response.data);
-            router.refresh()
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      } else {
-        console.log("No user Available");
-      }
-    };
+
 
   useEffect(() => {
     const Id = localStorage.getItem("Video_ID");
@@ -54,8 +38,32 @@ function page() {
         console.log("No user Available");
       }
     };
+      const DeleteVideo = () => {
+      if (user) {
+        axios
+          .post(`https://claudcanvas-backend.onrender.com/api/v1/media/Process/Video/delete/${Id}/`, {
+            username: user.username,
+          })
+          .then((response) => {
+            console.log(response.data);
+            alert("Video Deleted Successfully");
+          // Optionally, you can redirect or update the state to reflect the deletion
+          window.location.href = "/";
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+
+      } else {
+        console.log("No user Available");
+      }
+    };
     CollectData();
-  }, [user]);
+    if (isShouldDelete) {
+      DeleteVideo();
+      setisShouldDelete(false); // Reset the state after deletion
+    }
+  }, [user,isShouldDelete]);
 
   if (!isLoaded) {
     return (
@@ -120,7 +128,7 @@ function page() {
         <div className="mt-6 flex justify-center gap-4 py-4 flex-wrap">
                       <Button
                         className="px-6 py-3 text-white transition-all duration-300"
-                        onClick={() => DeleteVideo()}
+                        onClick={() => setisShouldDelete(true)}
                       >
                         <Trash2 />
                         Delete Video

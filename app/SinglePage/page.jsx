@@ -8,32 +8,11 @@ import { Trash2 } from "lucide-react";
 import { CreditCard } from 'lucide-react';
 import { saveAs } from 'file-saver';
 function page() {
-  const Id = localStorage.getItem("imageId");
   const { user, isLoaded } = useUser();
   const [Data, SetData] = useState([]);
   const [Load, setLoad] = useState(false);
-   const DeleteImage = () => {
-        if (user) {
-            axios
-        .post(`https://claudcanvas-backend.onrender.com/api/v1/media/Process/Image/delete/${Id}/`, {
-          username: user.username,
-        })
-        .then((response) => {
-          console.log(response.data);
-          alert("Image Deleted Successfully");
-          // Optionally, you can redirect or update the state to reflect the deletion
-          window.location.href = "/"; // Redirect to home page or any other page
-        })
-        .catch((err) => {
-          console.log(err);
-          alert('error occured');
-        });
-        }
-        else{
-            console.log("No user Available");
-        }
-      
-    };
+  const [isShouldDelete, setisShouldDelete] = useState(false);
+   
   useEffect(() => {
     const Id = localStorage.getItem("imageId");
     const CollectData = () => {
@@ -56,8 +35,34 @@ function page() {
         }
       
     };
+    const DeleteImage = () => {
+        if (user) {
+            axios
+        .post(`https://claudcanvas-backend.onrender.com/api/v1/media/Process/Image/delete/${Id}/`, {
+          username: user.username,
+        })
+        .then((response) => {
+          console.log(response.data);
+          alert("Image Deleted Successfully");
+          // Optionally, you can redirect or update the state to reflect the deletion
+          window.location.href = "/"; // Redirect to home page or any other page
+        })
+        .catch((err) => {
+          console.log(err);
+          alert('error occured');
+        });
+        }
+        else{
+            console.log("No user Available");
+        }
+      
+    };
     CollectData();
-  }, [user]);
+    if (isShouldDelete) {
+      DeleteImage();
+      setisShouldDelete(false); // Reset the state after deletion
+    }
+  }, [user,isShouldDelete]);
 
   if (!isLoaded) {
     return (
@@ -115,7 +120,7 @@ function page() {
         <div className="mt-6 flex justify-center gap-4 py-4 flex-wrap">
               <Button
                 className="px-6 py-3 text-white transition-all duration-300"
-                onClick={() => DeleteImage()}
+                onClick={() =>setisShouldDelete(true)}
               >
                 <Trash2 />
                 Delete Image
