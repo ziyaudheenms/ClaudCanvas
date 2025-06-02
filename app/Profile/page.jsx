@@ -13,6 +13,7 @@ import { FileImage } from 'lucide-react';
 import { Video } from 'lucide-react';
 import { LayoutDashboard } from 'lucide-react';
 import { ImagePlus } from 'lucide-react';
+import { Store } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -78,16 +79,10 @@ export default function Home() {
           <div>
             <SidebarLink
               link={{
-                label: user?.username,
+                label: "Store",
                 href: "#",
                 icon: (
-                  <img
-                    src={user?.imageUrl}
-                    className="h-10 w-10 shrink-0 rounded-full"
-                    width={50}
-                    height={50}
-                    alt="Avatar"
-                  />
+                 <Store className="h-10 w-10"/>
                 ),
               }}
             />

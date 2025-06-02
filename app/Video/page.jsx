@@ -71,7 +71,7 @@ export default function Home() {
           <div>
             <SidebarLink
               link={{
-                label: user?.username,
+                label:'Store',
                 href: user?.imageUrl,
                 icon: (
                  <Store className="h-10 w-10" />

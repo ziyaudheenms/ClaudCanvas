@@ -23,6 +23,7 @@ import { LayoutDashboard } from "lucide-react";
 import { ImagePlus } from "lucide-react";
 import { TvMinimalPlay } from "lucide-react";
 import { LogOut } from "lucide-react";
+import { Store } from "lucide-react";
 export default function Home() {
   const { user, isLoaded } = useUser();
   const [clickBtn, setClickBtn] = useState(false);
@@ -72,16 +73,10 @@ export default function Home() {
           <div>
             <SidebarLink
               link={{
-                label: user?.username,
+                label: "Store",
                 href: "#",
                 icon: (
-                  <img
-                    src={user?.imageUrl}
-                    className="h-10 w-10 shrink-0 rounded-full"
-                    width={50}
-                    height={50}
-                    alt="Avatar"
-                  />
+                  <Store className="h-10 w-10"/>
                 ),
               }}
             />
